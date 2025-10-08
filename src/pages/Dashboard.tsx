@@ -91,27 +91,25 @@ const Dashboard = () => {
         
         <main className="flex-1 flex overflow-hidden">
           <div className="flex-1 flex flex-col">
-            {/* Top Bar with Notifications */}
-            <div className="border-b border-border px-6 py-3 flex items-center justify-end">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowActivityFeed(!showActivityFeed)}
-                >
-                  <Activity className="h-5 w-5" />
-                </Button>
-                <NotificationBell />
-              </div>
-            </div>
-            
             <Tabs defaultValue="chat" className="flex-1 flex flex-col overflow-hidden">
-              <div className="border-b border-border px-6">
+              {/* Top Bar with Tabs and Notifications */}
+              <div className="border-b border-border px-6 py-3 flex items-center justify-between">
                 <TabsList>
                   <TabsTrigger value="chat">AI Chat</TabsTrigger>
                   <TabsTrigger value="metrics">Metrics</TabsTrigger>
                   <TabsTrigger value="activity">Activity</TabsTrigger>
                 </TabsList>
+                
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowActivityFeed(!showActivityFeed)}
+                  >
+                    <Activity className="h-5 w-5" />
+                  </Button>
+                  <NotificationBell />
+                </div>
               </div>
               
               <TabsContent value="chat" className="flex-1 overflow-auto m-0">
