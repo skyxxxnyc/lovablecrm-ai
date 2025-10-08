@@ -8,23 +8,23 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 224 14% 18%;
+    --background: 210 20% 96%;
+    --foreground: 220 10% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 224 14% 18%;
+    --card-foreground: 220 10% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 224 14% 18%;
+    --popover-foreground: 220 10% 10%;
 
     --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 13% 95%;
-    --secondary-foreground: 224 14% 18%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 10% 10%;
 
-    --muted: 220 13% 95%;
-    --muted-foreground: 224 10% 46%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 50%;
 
     --accent: 262 83% 58%;
     --accent-foreground: 0 0% 100%;
@@ -32,20 +32,15 @@ All colors MUST be HSL.
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
+    --border: 220 13% 88%;
     --input: 220 13% 91%;
     --ring: 262 83% 58%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
     
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(252 100% 70%));
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 13% 98%));
-    
-    --shadow-elegant: 0 4px 20px -4px hsl(262 83% 58% / 0.15);
-    --shadow-soft: 0 2px 10px -2px hsl(224 14% 18% / 0.08);
-    
-    --chat-bg: 0 0% 98%;
-    --sidebar-width: 260px;
+    --chat-bg: 0 0% 100%;
+    --sidebar-width: 72px;
+    --sidebar-width-expanded: 260px;
 
     --sidebar-background: 0 0% 98%;
 
@@ -65,23 +60,23 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 224 14% 12%;
+    --background: 220 15% 8%;
     --foreground: 0 0% 98%;
 
-    --card: 224 14% 15%;
+    --card: 220 15% 10%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 224 14% 15%;
+    --popover: 220 15% 10%;
     --popover-foreground: 0 0% 98%;
 
     --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 224 14% 18%;
+    --secondary: 220 15% 14%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 224 14% 18%;
-    --muted-foreground: 224 10% 65%;
+    --muted: 220 15% 14%;
+    --muted-foreground: 220 10% 60%;
 
     --accent: 262 83% 58%;
     --accent-foreground: 0 0% 100%;
@@ -89,19 +84,11 @@ All colors MUST be HSL.
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 224 14% 22%;
-    --input: 224 14% 22%;
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
     --ring: 262 83% 58%;
     
-    --chat-bg: 224 14% 10%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --chat-bg: 220 15% 10%;
   }
 }
 
