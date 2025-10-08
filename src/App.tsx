@@ -13,6 +13,7 @@ import BookMeeting from "./pages/BookMeeting";
 import PromptLibrary from "./pages/PromptLibrary";
 import AutomationRules from "./pages/AutomationRules";
 import NotFound from "./pages/NotFound";
+import { FloatingChatButton } from "./components/FloatingChatButton";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <FloatingChatButton />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
