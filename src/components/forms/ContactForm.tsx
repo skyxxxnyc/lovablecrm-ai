@@ -90,9 +90,9 @@ export const ContactForm = ({ contactId, onSuccess, onCancel }: ContactFormProps
       user_id: user.id,
     };
 
-    const { error } = contactId
-      ? await supabase.from('contacts').update(payload).eq('id', contactId)
-      : await supabase.from('contacts').insert(payload);
+    const { data, error } = contactId
+      ? await supabase.from('contacts').update(payload).eq('id', contactId).select()
+      : await supabase.from('contacts').insert(payload).select();
 
     setLoading(false);
 
@@ -109,6 +109,30 @@ export const ContactForm = ({ contactId, onSuccess, onCancel }: ContactFormProps
       title: "Success",
       description: `Contact ${contactId ? 'updated' : 'created'} successfully`,
     });
+
+    // Trigger workflows for contact creation
+    if (!contactId && data && data[0]) {
+      try {
+        const { data: workflows } = await supabase
+          .from('workflows')
+          .select('id')
+          .eq('trigger_type', 'contact_created')
+          .eq('is_active', true);
+
+        if (workflows && workflows.length > 0) {
+          for (const workflow of workflows) {
+            await supabase.functions.invoke('execute-workflow', {
+              body: {
+                workflowId: workflow.id,
+                triggerData: { contact_id: data[0].id, email: data[0].email }
+              }
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Error triggering workflows:', err);
+      }
+    }
 
     onSuccess();
   };

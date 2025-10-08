@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { NewItemDialog } from "./NewItemDialog";
 import { 
   Sparkles, 
   Search, 
@@ -12,7 +13,8 @@ import {
   LogOut,
   Plus,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Zap
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -52,6 +54,7 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
   const [companies, setCompanies] = useState<Company[]>([]);
   const [activeView, setActiveView] = useState<'chat' | 'contacts' | 'deals' | 'companies' | 'tasks'>('chat');
   const [isExpanded, setIsExpanded] = useState(true);
+  const [showNewDialog, setShowNewDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -152,7 +155,7 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
 
       {/* Navigation Icons */}
       <div className="p-3 space-y-2">
-        <NavButton icon={Plus} label="New" />
+        <NavButton icon={Plus} label="New" onClick={() => setShowNewDialog(true)} />
         <NavButton icon={Search} label="Search" />
         <div className="pt-2 border-t border-border" />
         <NavButton 
@@ -184,6 +187,12 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
           label="Tasks" 
           active={activeView === 'tasks'}
           onClick={() => handleViewChange('tasks')} 
+        />
+        <div className="pt-2 border-t border-border" />
+        <NavButton 
+          icon={Zap} 
+          label="Workflows" 
+          onClick={() => navigate('/workflows')} 
         />
       </div>
 
@@ -277,6 +286,16 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
       >
         {isExpanded ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
       </button>
+
+      <NewItemDialog 
+        open={showNewDialog} 
+        onOpenChange={setShowNewDialog}
+        onSuccess={() => {
+          fetchContacts();
+          fetchDeals();
+          fetchCompanies();
+        }}
+      />
     </aside>
   );
 };

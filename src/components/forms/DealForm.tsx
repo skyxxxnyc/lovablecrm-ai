@@ -88,9 +88,21 @@ export const DealForm = ({ dealId, onSuccess, onCancel }: DealFormProps) => {
       user_id: user.id,
     };
 
-    const { error } = dealId
-      ? await supabase.from('deals').update(payload).eq('id', dealId)
-      : await supabase.from('deals').insert(payload);
+    // Check if stage changed for existing deal
+    let stageChanged = false;
+    if (dealId) {
+      const { data: existingDeal } = await supabase
+        .from('deals')
+        .select('stage')
+        .eq('id', dealId)
+        .single();
+      
+      stageChanged = existingDeal && existingDeal.stage !== formData.stage;
+    }
+
+    const { data, error } = dealId
+      ? await supabase.from('deals').update(payload).eq('id', dealId).select()
+      : await supabase.from('deals').insert(payload).select();
 
     setLoading(false);
 
@@ -107,6 +119,35 @@ export const DealForm = ({ dealId, onSuccess, onCancel }: DealFormProps) => {
       title: "Success",
       description: `Deal ${dealId ? 'updated' : 'created'} successfully`,
     });
+
+    // Trigger workflows
+    if (data && data[0]) {
+      try {
+        const triggerType = stageChanged ? 'deal_stage_changed' : 'contact_created';
+        const { data: workflows } = await supabase
+          .from('workflows')
+          .select('id')
+          .eq('trigger_type', triggerType)
+          .eq('is_active', true);
+
+        if (workflows && workflows.length > 0) {
+          for (const workflow of workflows) {
+            await supabase.functions.invoke('execute-workflow', {
+              body: {
+                workflowId: workflow.id,
+                triggerData: { 
+                  deal_id: data[0].id,
+                  stage: data[0].stage,
+                  amount: data[0].amount
+                }
+              }
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Error triggering workflows:', err);
+      }
+    }
 
     onSuccess();
   };
