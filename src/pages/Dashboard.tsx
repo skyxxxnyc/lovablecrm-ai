@@ -88,8 +88,7 @@ const Dashboard = () => {
         <main className="flex-1 flex overflow-hidden">
           <div className="flex-1 flex flex-col">
             {/* Top Bar with Notifications */}
-            <div className="border-b border-border px-6 py-3 flex items-center justify-between">
-              <h1 className="text-lg font-semibold">CRM Dashboard</h1>
+            <div className="border-b border-border px-6 py-3 flex items-center justify-end">
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"

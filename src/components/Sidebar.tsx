@@ -18,8 +18,11 @@ import {
   Mail,
   Calendar,
   BookOpen,
-  Settings
+  Settings,
+  Moon,
+  Sun
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -61,6 +64,7 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
   const [showNewDialog, setShowNewDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     fetchContacts();
@@ -299,6 +303,11 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
 
       {/* Footer */}
       <div className="p-3 border-t border-border space-y-2">
+        <NavButton 
+          icon={theme === 'dark' ? Sun : Moon} 
+          label={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
+        />
         <NavButton icon={LogOut} label="Sign out" onClick={handleSignOut} />
       </div>
 
