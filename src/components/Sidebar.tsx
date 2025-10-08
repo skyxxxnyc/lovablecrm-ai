@@ -14,7 +14,9 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
-  Zap
+  Zap,
+  Mail,
+  Calendar
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -193,6 +195,16 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
           icon={Zap} 
           label="Workflows" 
           onClick={() => navigate('/workflows')} 
+        />
+        <NavButton 
+          icon={Mail} 
+          label="Email Sequences" 
+          onClick={() => navigate('/sequences')} 
+        />
+        <NavButton 
+          icon={Calendar} 
+          label="Scheduling" 
+          onClick={() => navigate('/scheduling')} 
         />
       </div>
 

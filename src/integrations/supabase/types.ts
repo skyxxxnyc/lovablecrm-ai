@@ -65,6 +65,36 @@ export type Database = {
           },
         ]
       }
+      availability_slots: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_active: boolean | null
+          start_time: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_active?: boolean | null
+          start_time: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_active?: boolean | null
+          start_time?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       calendar_events: {
         Row: {
           created_at: string | null
@@ -252,6 +282,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      email_sequences: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       emails: {
         Row: {
@@ -494,6 +554,78 @@ export type Database = {
           title?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      sequence_enrollments: {
+        Row: {
+          completed_at: string | null
+          contact_id: string
+          current_step: number | null
+          enrolled_at: string | null
+          id: string
+          next_send_at: string | null
+          paused_at: string | null
+          sequence_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          contact_id: string
+          current_step?: number | null
+          enrolled_at?: string | null
+          id?: string
+          next_send_at?: string | null
+          paused_at?: string | null
+          sequence_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          contact_id?: string
+          current_step?: number | null
+          enrolled_at?: string | null
+          id?: string
+          next_send_at?: string | null
+          paused_at?: string | null
+          sequence_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sequence_steps: {
+        Row: {
+          body: string
+          created_at: string | null
+          delay_days: number
+          delay_hours: number
+          id: string
+          sequence_id: string
+          step_number: number
+          subject: string
+        }
+        Insert: {
+          body: string
+          created_at?: string | null
+          delay_days?: number
+          delay_hours?: number
+          id?: string
+          sequence_id: string
+          step_number: number
+          subject: string
+        }
+        Update: {
+          body?: string
+          created_at?: string | null
+          delay_days?: number
+          delay_hours?: number
+          id?: string
+          sequence_id?: string
+          step_number?: number
+          subject?: string
         }
         Relationships: []
       }

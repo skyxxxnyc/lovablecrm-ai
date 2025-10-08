@@ -7,6 +7,9 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Workflows from "./pages/Workflows";
 import Integrations from "./pages/Integrations";
+import EmailSequences from "./pages/EmailSequences";
+import Scheduling from "./pages/Scheduling";
+import BookMeeting from "./pages/BookMeeting";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +26,9 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/workflows" element={<Workflows />} />
           <Route path="/integrations" element={<Integrations />} />
+          <Route path="/sequences" element={<EmailSequences />} />
+          <Route path="/scheduling" element={<Scheduling />} />
+          <Route path="/book/:slug" element={<BookMeeting />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
