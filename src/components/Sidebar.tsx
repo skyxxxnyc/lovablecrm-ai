@@ -60,7 +60,7 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
   const [deals, setDeals] = useState<Deal[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [activeView, setActiveView] = useState<'chat' | 'contacts' | 'deals' | 'companies' | 'tasks'>('chat');
-  const isExpanded = true; // Always visible
+  const [isExpanded, setIsExpanded] = useState(false);
   const [showNewDialog, setShowNewDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -152,7 +152,7 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
   );
 
   return (
-    <aside className={`${isExpanded ? 'w-[var(--sidebar-width-expanded)]' : 'w-[var(--sidebar-width)]'} border-r border-border bg-card flex flex-col h-screen transition-all duration-300 relative`}>
+    <aside className={`${isExpanded ? 'w-64' : 'w-16'} border-r border-border bg-card flex flex-col h-screen transition-all duration-300`}>
       {/* Logo */}
       <div className="p-4 border-b border-border flex items-center justify-center">
         <div className="w-10 h-10 bg-foreground rounded-lg flex items-center justify-center">
@@ -161,7 +161,7 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
       </div>
 
       {/* Navigation Icons */}
-      <div className="p-3 space-y-2">
+      <div className="flex-1 p-3 space-y-2 overflow-y-auto">
         <NavButton icon={Plus} label="New" onClick={() => setShowNewDialog(true)} />
         <NavButton icon={Search} label="Search" />
         <div className="pt-2 border-t border-border" />
@@ -223,86 +223,13 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
         />
       </div>
 
-      {/* Expanded List View */}
-      {isExpanded && activeView !== 'chat' && (
-        <div className="flex-1 border-l border-border overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-4">
-              <h3 className="font-semibold mb-4 capitalize">{activeView}</h3>
-              <div className="space-y-1">
-                {activeView === 'contacts' && contacts.map((contact) => (
-                  <Button
-                    key={contact.id}
-                    variant="ghost"
-                    className="w-full justify-start text-left h-auto py-2"
-                    onClick={() => {
-                      onContactSelect(contact.id);
-                      setActiveView('chat');
-                    }}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {contact.first_name} {contact.last_name}
-                      </p>
-                      {contact.position && (
-                        <p className="text-xs text-muted-foreground truncate">
-                          {contact.position}
-                        </p>
-                      )}
-                    </div>
-                  </Button>
-                ))}
-                
-                {activeView === 'deals' && deals.map((deal) => (
-                  <Button
-                    key={deal.id}
-                    variant="ghost"
-                    className="w-full justify-start text-left h-auto py-2"
-                    onClick={() => {
-                      onDealSelect(deal.id);
-                      setActiveView('chat');
-                    }}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{deal.title}</p>
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-muted-foreground">{deal.stage}</p>
-                        {deal.amount && (
-                          <p className="text-xs font-semibold">${deal.amount.toLocaleString()}</p>
-                        )}
-                      </div>
-                    </div>
-                  </Button>
-                ))}
-                
-                {activeView === 'companies' && companies.map((company) => (
-                  <Button
-                    key={company.id}
-                    variant="ghost"
-                    className="w-full justify-start text-left h-auto py-2"
-                    onClick={() => {
-                      onCompanySelect(company.id);
-                      setActiveView('chat');
-                    }}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{company.name}</p>
-                      {company.industry && (
-                        <p className="text-xs text-muted-foreground truncate">
-                          {company.industry}
-                        </p>
-                      )}
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </ScrollArea>
-        </div>
-      )}
-
       {/* Footer */}
       <div className="p-3 border-t border-border space-y-2">
+        <NavButton 
+          icon={isExpanded ? ChevronLeft : ChevronRight} 
+          label={isExpanded ? 'Collapse' : 'Expand'}
+          onClick={() => setIsExpanded(!isExpanded)} 
+        />
         <NavButton 
           icon={theme === 'dark' ? Sun : Moon} 
           label={theme === 'dark' ? 'Light mode' : 'Dark mode'}
