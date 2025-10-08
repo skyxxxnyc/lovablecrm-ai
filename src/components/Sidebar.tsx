@@ -57,7 +57,7 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
   const [deals, setDeals] = useState<Deal[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [activeView, setActiveView] = useState<'chat' | 'contacts' | 'deals' | 'companies' | 'tasks'>('chat');
-  const [isExpanded, setIsExpanded] = useState(true);
+  const isExpanded = true; // Always visible
   const [showNewDialog, setShowNewDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -125,7 +125,6 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
   const handleViewChange = (view: typeof activeView) => {
     setActiveView(view);
     onViewChange(view);
-    if (!isExpanded) setIsExpanded(true);
   };
 
   const NavButton = ({ icon: Icon, label, active, onClick }: { icon: any; label: string; active?: boolean; onClick?: () => void }) => (
@@ -303,13 +302,6 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
         <NavButton icon={LogOut} label="Sign out" onClick={handleSignOut} />
       </div>
 
-      {/* Expand/Collapse Toggle */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="absolute -right-3 top-4 w-6 h-6 bg-card border border-border rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
-      >
-        {isExpanded ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-      </button>
 
       <NewItemDialog 
         open={showNewDialog} 
