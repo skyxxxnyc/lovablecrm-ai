@@ -103,6 +103,9 @@ async function executeAction(action: any, triggerData: any, userId: string, supa
     case 'trigger_webhook':
       return await triggerWebhook(config, triggerData);
     
+    case 'lindy':
+      return await triggerLindy(config, triggerData, userId, supabase);
+    
     default:
       throw new Error(`Unknown action type: ${action.type}`);
   }
@@ -188,4 +191,69 @@ async function triggerWebhook(config: any, triggerData: any) {
   }
 
   return { status: response.status, sent: true };
+}
+
+async function triggerLindy(config: any, triggerData: any, userId: string, supabase: any) {
+  // Get Lindy integration
+  const { data: lindyIntegration, error: integrationError } = await supabase
+    .from('integrations')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('integration_type', 'lindy')
+    .eq('is_active', true)
+    .single();
+
+  if (integrationError || !lindyIntegration) {
+    throw new Error('Lindy.io integration not configured. Please add it in Integrations page.');
+  }
+
+  const webhookUrl = lindyIntegration.config.webhook_url;
+  const apiKey = lindyIntegration.config.api_key;
+
+  if (!webhookUrl) {
+    throw new Error('Lindy webhook URL not configured');
+  }
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (apiKey) {
+    headers['Authorization'] = `Bearer ${apiKey}`;
+  }
+
+  const payload = {
+    message: config.message || 'New CRM event triggered',
+    event_data: triggerData,
+    timestamp: new Date().toISOString(),
+  };
+
+  // Merge additional data if provided
+  if (config.data) {
+    try {
+      const additionalData = JSON.parse(config.data);
+      Object.assign(payload, additionalData);
+    } catch (e) {
+      console.error('Failed to parse Lindy additional data:', e);
+    }
+  }
+
+  console.log('Triggering Lindy webhook:', webhookUrl);
+
+  const response = await fetch(webhookUrl, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Lindy webhook failed: ${response.status} - ${errorText}`);
+  }
+
+  return { 
+    status: response.status, 
+    sent: true,
+    message: config.message 
+  };
 }

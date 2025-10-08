@@ -114,6 +114,16 @@ const Integrations = () => {
 
   const integrationTypes = [
     {
+      type: 'lindy',
+      icon: Zap,
+      title: 'Lindy.io',
+      description: 'AI-powered automation with Lindy',
+      fields: [
+        { key: 'webhook_url', label: 'Lindy Webhook URL', type: 'url' },
+        { key: 'api_key', label: 'Lindy API Key (Optional)', type: 'password' }
+      ]
+    },
+    {
       type: 'zapier',
       icon: Zap,
       title: 'Zapier Webhook',

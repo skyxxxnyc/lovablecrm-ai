@@ -175,6 +175,7 @@ export const WorkflowForm = ({ workflow, onSuccess, onCancel }: WorkflowFormProp
                 <SelectItem value="create_task">Create Task</SelectItem>
                 <SelectItem value="update_field">Update Field</SelectItem>
                 <SelectItem value="trigger_webhook">Trigger Webhook</SelectItem>
+                <SelectItem value="lindy">Trigger Lindy.io</SelectItem>
               </SelectContent>
             </Select>
 
@@ -223,6 +224,23 @@ export const WorkflowForm = ({ workflow, onSuccess, onCancel }: WorkflowFormProp
                 value={(action.config as any).url || ''}
                 onChange={(e) => updateAction(index, 'url', e.target.value)}
               />
+            )}
+
+            {action.type === 'lindy' && (
+              <>
+                <Textarea
+                  placeholder="Message for Lindy AI (context about the event)..."
+                  value={(action.config as any).message || ''}
+                  onChange={(e) => updateAction(index, 'message', e.target.value)}
+                  rows={3}
+                />
+                <Textarea
+                  placeholder='Additional data (JSON format): {"key": "value"}'
+                  value={(action.config as any).data || ''}
+                  onChange={(e) => updateAction(index, 'data', e.target.value)}
+                  rows={2}
+                />
+              </>
             )}
           </Card>
         ))}
