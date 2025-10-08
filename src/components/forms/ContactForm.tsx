@@ -86,7 +86,7 @@ export const ContactForm = ({ contactId, onSuccess, onCancel }: ContactFormProps
 
     const payload = {
       ...formData,
-      company_id: formData.company_id || null,
+      company_id: formData.company_id && formData.company_id !== 'none' ? formData.company_id : null,
       user_id: user.id,
     };
 
@@ -195,7 +195,7 @@ export const ContactForm = ({ contactId, onSuccess, onCancel }: ContactFormProps
             <SelectValue placeholder="Select company" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">None</SelectItem>
+            <SelectItem value="none">None</SelectItem>
             {companies.map((company) => (
               <SelectItem key={company.id} value={company.id}>
                 {company.name}

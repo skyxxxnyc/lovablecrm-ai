@@ -82,8 +82,8 @@ export const DealForm = ({ dealId, onSuccess, onCancel }: DealFormProps) => {
       amount: formData.amount ? parseFloat(formData.amount) : null,
       probability: parseInt(formData.probability),
       expected_close_date: formData.expected_close_date || null,
-      contact_id: formData.contact_id || null,
-      company_id: formData.company_id || null,
+      contact_id: formData.contact_id && formData.contact_id !== 'none' ? formData.contact_id : null,
+      company_id: formData.company_id && formData.company_id !== 'none' ? formData.company_id : null,
       notes: formData.notes || null,
       user_id: user.id,
     };
@@ -225,7 +225,7 @@ export const DealForm = ({ dealId, onSuccess, onCancel }: DealFormProps) => {
             <SelectValue placeholder="Select contact" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">None</SelectItem>
+            <SelectItem value="none">None</SelectItem>
             {contacts.map((contact) => (
               <SelectItem key={contact.id} value={contact.id}>
                 {contact.first_name} {contact.last_name}
@@ -242,7 +242,7 @@ export const DealForm = ({ dealId, onSuccess, onCancel }: DealFormProps) => {
             <SelectValue placeholder="Select company" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">None</SelectItem>
+            <SelectItem value="none">None</SelectItem>
             {companies.map((company) => (
               <SelectItem key={company.id} value={company.id}>
                 {company.name}

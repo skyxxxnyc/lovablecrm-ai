@@ -54,8 +54,8 @@ export const ActivityForm = ({ contactId, dealId, onSuccess, onCancel }: Activit
       subject: formData.subject,
       description: formData.description || null,
       activity_date: formData.activity_date,
-      contact_id: formData.contact_id || null,
-      deal_id: formData.deal_id || null,
+      contact_id: formData.contact_id && formData.contact_id !== 'none' ? formData.contact_id : null,
+      deal_id: formData.deal_id && formData.deal_id !== 'none' ? formData.deal_id : null,
       user_id: user.id,
     };
 
@@ -125,7 +125,7 @@ export const ActivityForm = ({ contactId, dealId, onSuccess, onCancel }: Activit
             <SelectValue placeholder="Select contact" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">None</SelectItem>
+            <SelectItem value="none">None</SelectItem>
             {contacts.map((contact) => (
               <SelectItem key={contact.id} value={contact.id}>
                 {contact.first_name} {contact.last_name}
@@ -142,7 +142,7 @@ export const ActivityForm = ({ contactId, dealId, onSuccess, onCancel }: Activit
             <SelectValue placeholder="Select deal" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">None</SelectItem>
+            <SelectItem value="none">None</SelectItem>
             {deals.map((deal) => (
               <SelectItem key={deal.id} value={deal.id}>
                 {deal.title}
