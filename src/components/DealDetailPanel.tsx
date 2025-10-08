@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DealForm } from "./forms/DealForm";
 import { ActivityForm } from "./forms/ActivityForm";
+import { InlineEditField } from "./detail-panels/InlineEditField";
+import { ActivityHistory } from "./detail-panels/ActivityHistory";
+import { FileAttachment } from "./FileAttachment";
+import { RelatedRecords } from "./detail-panels/RelatedRecords";
+import { QuickActions } from "./detail-panels/QuickActions";
 import { 
   X, 
   DollarSign, 
@@ -15,11 +19,7 @@ import {
   Calendar,
   Edit,
   Trash2,
-  Send,
-  FileText,
-  CheckSquare,
-  ExternalLink,
-  Activity
+  Paperclip
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -47,27 +47,27 @@ interface Deal {
   };
 }
 
-interface Task {
+interface Attachment {
   id: string;
-  title: string;
-  status: string;
-  priority: string;
-  due_date: string | null;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  storage_path: string;
+  created_at: string;
 }
 
-interface ActivityLog {
-  id: string;
-  activity_type: string;
-  subject: string;
-  description: string | null;
-  activity_date: string;
-}
+const stageColors: Record<string, string> = {
+  lead: 'bg-gray-500',
+  qualified: 'bg-blue-500',
+  proposal: 'bg-yellow-500',
+  negotiation: 'bg-orange-500',
+  closed: 'bg-green-500',
+  lost: 'bg-red-500'
+};
 
 const DealDetailPanel = ({ dealId, onClose }: DealDetailPanelProps) => {
   const [deal, setDeal] = useState<Deal | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [activities, setActivities] = useState<ActivityLog[]>([]);
-  const [newNote, setNewNote] = useState("");
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showActivityDialog, setShowActivityDialog] = useState(false);
@@ -98,21 +98,14 @@ const DealDetailPanel = ({ dealId, onClose }: DealDetailPanelProps) => {
 
     setDeal(dealData);
 
-    const { data: taskData } = await supabase
-      .from('tasks')
+    const { data: attachmentData } = await supabase
+      .from('attachments')
       .select('*')
-      .eq('deal_id', dealId)
+      .eq('entity_type', 'deal')
+      .eq('entity_id', dealId)
       .order('created_at', { ascending: false });
 
-    setTasks(taskData || []);
-
-    const { data: activityData } = await supabase
-      .from('activities')
-      .select('*')
-      .eq('deal_id', dealId)
-      .order('activity_date', { ascending: false });
-
-    setActivities(activityData || []);
+    setAttachments(attachmentData || []);
     setLoading(false);
   };
 
@@ -141,41 +134,45 @@ const DealDetailPanel = ({ dealId, onClose }: DealDetailPanelProps) => {
     onClose();
   };
 
-  const handleSaveNote = async () => {
-    if (!newNote.trim()) return;
-
+  const handleFieldSave = async (field: string, value: string) => {
+    const updateValue = field === 'amount' ? parseFloat(value) : value;
+    
     const { error } = await supabase
       .from('deals')
-      .update({ notes: newNote })
+      .update({ [field]: updateValue })
       .eq('id', dealId);
 
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to save note",
+        description: `Failed to update ${field}`,
         variant: "destructive",
       });
-      return;
+      throw error;
     }
 
     toast({
-      title: "Success",
-      description: "Note saved successfully",
+      title: "Saved",
+      description: `${field} updated successfully`,
     });
-    
+
     if (deal) {
-      setDeal({ ...deal, notes: newNote });
+      setDeal({ ...deal, [field]: updateValue });
     }
-    setNewNote("");
   };
 
-  const stageColors: Record<string, string> = {
-    lead: 'bg-gray-500',
-    qualified: 'bg-blue-500',
-    proposal: 'bg-yellow-500',
-    negotiation: 'bg-orange-500',
-    closed: 'bg-green-500',
-    lost: 'bg-red-500'
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case "update-stage":
+        setShowEditDialog(true);
+        break;
+      case "call":
+      case "meeting":
+      case "note":
+      case "task":
+        setShowActivityDialog(true);
+        break;
+    }
   };
 
   if (loading || !deal) {
@@ -222,134 +219,79 @@ const DealDetailPanel = ({ dealId, onClose }: DealDetailPanelProps) => {
           </div>
         </div>
 
-        {deal.amount && (
-          <div className="flex items-center space-x-2 text-sm mb-2">
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-            <span className="text-lg font-semibold">${deal.amount.toLocaleString()}</span>
-          </div>
-        )}
+        <div className="space-y-2 mb-4">
+          <InlineEditField
+            value={deal.amount}
+            onSave={(value) => handleFieldSave("amount", value)}
+            type="number"
+            placeholder="Add amount"
+            prefix={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+            displayClassName="text-lg font-semibold"
+          />
 
-        {deal.probability !== null && (
-          <div className="flex items-center space-x-2 text-sm mb-2">
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            <span>{deal.probability}% probability</span>
-          </div>
-        )}
+          {deal.probability !== null && (
+            <div className="flex items-center space-x-2 text-sm">
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <span>{deal.probability}% probability</span>
+            </div>
+          )}
 
-        {deal.expected_close_date && (
-          <div className="flex items-center space-x-2 text-sm mb-4">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>Close: {new Date(deal.expected_close_date).toLocaleDateString()}</span>
-          </div>
-        )}
+          {deal.expected_close_date && (
+            <div className="flex items-center space-x-2 text-sm">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span>Close: {new Date(deal.expected_close_date).toLocaleDateString()}</span>
+            </div>
+          )}
+        </div>
 
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full"
-          onClick={() => setShowActivityDialog(true)}
-        >
-          <Activity className="mr-2 h-4 w-4" />
-          Log Activity
-        </Button>
+        <QuickActions
+          entityType="deal"
+          entityId={dealId}
+          onAction={handleQuickAction}
+        />
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="p-6 space-y-6">
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <CheckSquare className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold">Tasks</h3>
-            </div>
-            {tasks.length === 0 ? (
-              <Card className="p-8 text-center">
-                <CheckSquare className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">No tasks yet</p>
-              </Card>
-            ) : (
-              <div className="space-y-2">
-                {tasks.map((task) => (
-                  <Card key={task.id} className="p-3">
-                    <div className="flex items-start justify-between mb-1">
-                      <p className="text-sm font-medium">{task.title}</p>
-                      <Badge variant="secondary" className="text-xs">
-                        {task.priority}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{task.status}</p>
-                    {task.due_date && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Due: {new Date(task.due_date).toLocaleDateString()}
-                      </p>
-                    )}
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
+      <Tabs defaultValue="overview" className="flex-1 flex flex-col overflow-hidden">
+        <TabsList className="mx-6 mt-2">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="related">Related</TabsTrigger>
+        </TabsList>
 
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <Activity className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold">Activities</h3>
-            </div>
-            {activities.length === 0 ? (
-              <Card className="p-8 text-center">
-                <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">No activities logged</p>
-              </Card>
-            ) : (
-              <div className="space-y-2">
-                {activities.map((activity) => (
-                  <Card key={activity.id} className="p-3">
-                    <div className="flex items-start justify-between mb-1">
-                      <p className="text-sm font-medium">{activity.subject}</p>
-                      <Badge variant="secondary" className="text-xs">
-                        {activity.activity_type}
-                      </Badge>
-                    </div>
-                    {activity.description && (
-                      <p className="text-xs text-muted-foreground line-clamp-2">{activity.description}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(activity.activity_date).toLocaleDateString()}
-                    </p>
-                  </Card>
-                ))}
+        <ScrollArea className="flex-1">
+          <TabsContent value="overview" className="p-6 space-y-6 m-0">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Paperclip className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold">Attachments ({attachments.length})</h3>
               </div>
-            )}
-          </div>
-
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <FileText className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold">Notes</h3>
-            </div>
-            {deal.notes && (
-              <Card className="p-3 mb-3 bg-secondary/50">
-                <p className="text-sm whitespace-pre-wrap">{deal.notes}</p>
-              </Card>
-            )}
-            <Card className="p-3">
-              <Textarea
-                placeholder="Add a note..."
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                className="min-h-[80px] mb-2 border-0 p-0 focus-visible:ring-0 shadow-none resize-none"
+              <FileAttachment
+                entityType="deal"
+                entityId={dealId}
+                attachments={attachments}
+                onUploadComplete={fetchDealDetails}
               />
-              <Button 
-                onClick={handleSaveNote}
-                size="sm" 
-                className="w-full"
-                disabled={!newNote.trim()}
-              >
-                <Send className="mr-2 h-3 w-3" />
-                Save Note
-              </Button>
-            </Card>
-          </div>
-        </div>
-      </ScrollArea>
+            </div>
+
+            {deal.notes && (
+              <div>
+                <h3 className="font-semibold mb-3">Notes</h3>
+                <div className="p-3 bg-secondary/50 rounded-lg">
+                  <p className="text-sm whitespace-pre-wrap">{deal.notes}</p>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="activity" className="p-6 m-0">
+            <ActivityHistory entityType="deal" entityId={dealId} />
+          </TabsContent>
+
+          <TabsContent value="related" className="p-6 m-0">
+            <RelatedRecords entityType="deal" entityId={dealId} />
+          </TabsContent>
+        </ScrollArea>
+      </Tabs>
 
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-2xl">

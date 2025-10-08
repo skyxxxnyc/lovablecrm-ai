@@ -1,26 +1,27 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ContactForm } from "./forms/ContactForm";
 import { ActivityForm } from "./forms/ActivityForm";
+import { InlineEditField } from "./detail-panels/InlineEditField";
+import { ActivityHistory } from "./detail-panels/ActivityHistory";
+import { FileAttachment } from "./FileAttachment";
+import { RelatedRecords } from "./detail-panels/RelatedRecords";
+import { QuickActions } from "./detail-panels/QuickActions";
 import { 
   X, 
   Mail, 
   Phone, 
   Building2, 
-  Calendar,
   Edit,
   Trash2,
-  Send,
-  FileText,
-  MessageSquare,
-  ExternalLink,
-  Activity
+  Activity,
+  Paperclip,
+  Network
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -43,39 +44,18 @@ interface Contact {
   };
 }
 
-interface Email {
+interface Attachment {
   id: string;
-  subject: string;
-  body: string;
-  sent_at: string;
-  is_outbound: boolean;
-  from_email: string;
-  to_email: string;
-}
-
-interface CalendarEvent {
-  id: string;
-  title: string;
-  start_time: string;
-  end_time: string;
-  location: string | null;
-  meeting_notes: string | null;
-}
-
-interface ActivityLog {
-  id: string;
-  activity_type: string;
-  subject: string;
-  description: string | null;
-  activity_date: string;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  storage_path: string;
+  created_at: string;
 }
 
 const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => {
   const [contact, setContact] = useState<Contact | null>(null);
-  const [emails, setEmails] = useState<Email[]>([]);
-  const [meetings, setMeetings] = useState<CalendarEvent[]>([]);
-  const [activities, setActivities] = useState<ActivityLog[]>([]);
-  const [newNote, setNewNote] = useState("");
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showActivityDialog, setShowActivityDialog] = useState(false);
@@ -88,7 +68,6 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
   const fetchContactDetails = async () => {
     setLoading(true);
     
-    // Fetch contact
     const { data: contactData, error: contactError } = await supabase
       .from('contacts')
       .select('*, companies(name)')
@@ -107,35 +86,14 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
 
     setContact(contactData);
 
-    // Fetch emails
-    const { data: emailData } = await supabase
-      .from('emails')
+    const { data: attachmentData } = await supabase
+      .from('attachments')
       .select('*')
-      .eq('contact_id', contactId)
-      .order('sent_at', { ascending: false })
-      .limit(10);
+      .eq('entity_type', 'contact')
+      .eq('entity_id', contactId)
+      .order('created_at', { ascending: false });
 
-    setEmails(emailData || []);
-
-    // Fetch meetings
-    const { data: meetingData } = await supabase
-      .from('calendar_events')
-      .select('*')
-      .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-      .order('start_time', { ascending: false })
-      .limit(10);
-
-    setMeetings(meetingData || []);
-
-    // Fetch activities
-    const { data: activityData } = await supabase
-      .from('activities')
-      .select('*')
-      .eq('contact_id', contactId)
-      .order('activity_date', { ascending: false })
-      .limit(10);
-
-    setActivities(activityData || []);
+    setAttachments(attachmentData || []);
     setLoading(false);
   };
 
@@ -164,32 +122,45 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
     onClose();
   };
 
-  const handleSaveNote = async () => {
-    if (!newNote.trim()) return;
-
+  const handleFieldSave = async (field: string, value: string) => {
     const { error } = await supabase
       .from('contacts')
-      .update({ notes: newNote })
+      .update({ [field]: value })
       .eq('id', contactId);
 
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to save note",
+        description: `Failed to update ${field}`,
         variant: "destructive",
       });
-      return;
+      throw error;
     }
 
     toast({
-      title: "Success",
-      description: "Note saved successfully",
+      title: "Saved",
+      description: `${field} updated successfully`,
     });
-    
+
     if (contact) {
-      setContact({ ...contact, notes: newNote });
+      setContact({ ...contact, [field]: value });
     }
-    setNewNote("");
+  };
+
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case "email":
+        if (contact?.email) {
+          window.location.href = `mailto:${contact.email}`;
+        }
+        break;
+      case "call":
+      case "meeting":
+      case "note":
+      case "task":
+        setShowActivityDialog(true);
+        break;
+    }
   };
 
   if (loading || !contact) {
@@ -202,21 +173,12 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
 
   return (
     <aside className="w-96 border-l border-border bg-card flex flex-col h-screen animate-slide-in-right">
-      {/* Header */}
       <div className="p-6 border-b border-border">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <div className="flex items-center space-x-2 mb-1">
-              <h2 className="text-xl font-semibold">
-                {contact.first_name} {contact.last_name}
-              </h2>
-              <Badge variant="secondary" className="text-xs">
-                0
-              </Badge>
-            </div>
-            {contact.position && (
-              <p className="text-sm text-muted-foreground">{contact.position}</p>
-            )}
+            <h2 className="text-xl font-semibold mb-2">
+              {contact.first_name} {contact.last_name}
+            </h2>
             {contact.companies && (
               <p className="text-sm text-muted-foreground">{contact.companies.name}</p>
             )}
@@ -239,161 +201,80 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
           </div>
         </div>
 
-        {contact.email && (
-          <div className="flex items-center space-x-2 text-sm mb-2">
-            <Mail className="h-4 w-4 text-muted-foreground" />
-            <span className="text-foreground">{contact.email}</span>
-          </div>
-        )}
+        <div className="space-y-2 mb-4">
+          <InlineEditField
+            value={contact.email}
+            onSave={(value) => handleFieldSave("email", value)}
+            type="email"
+            placeholder="Add email"
+            prefix={<Mail className="h-4 w-4 text-muted-foreground" />}
+          />
+          
+          <InlineEditField
+            value={contact.phone}
+            onSave={(value) => handleFieldSave("phone", value)}
+            type="tel"
+            placeholder="Add phone"
+            prefix={<Phone className="h-4 w-4 text-muted-foreground" />}
+          />
 
-        <div className="flex space-x-2 mt-4">
-          <Button className="flex-1" size="sm">
-            <Mail className="mr-2 h-4 w-4" />
-            Send Email
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowActivityDialog(true)}>
-            <Activity className="mr-2 h-4 w-4" />
-            Log Activity
-          </Button>
+          <InlineEditField
+            value={contact.position}
+            onSave={(value) => handleFieldSave("position", value)}
+            placeholder="Add position"
+            prefix={<Building2 className="h-4 w-4 text-muted-foreground" />}
+          />
         </div>
+
+        <QuickActions
+          entityType="contact"
+          entityId={contactId}
+          onAction={handleQuickAction}
+        />
       </div>
 
-      {/* Content */}
-      <ScrollArea className="flex-1">
-        <div className="p-6 space-y-6">
-          {/* Email History */}
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <Mail className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold">Email History</h3>
-            </div>
-            {emails.length === 0 ? (
-              <Card className="p-8 text-center">
-                <Mail className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground mb-1">No email history yet</p>
-                <p className="text-xs text-muted-foreground">
-                  Connect Gmail to see conversations
-                </p>
-              </Card>
-            ) : (
-              <div className="space-y-2">
-                {emails.map((email) => (
-                  <Card key={email.id} className="p-3">
-                    <div className="flex items-start justify-between mb-1">
-                      <p className="text-sm font-medium">{email.subject}</p>
-                      <Badge variant={email.is_outbound ? "default" : "secondary"} className="text-xs">
-                        {email.is_outbound ? "Sent" : "Received"}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{email.body}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(email.sent_at).toLocaleDateString()}
-                    </p>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
+      <Tabs defaultValue="overview" className="flex-1 flex flex-col overflow-hidden">
+        <TabsList className="mx-6 mt-2">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="related">Related</TabsTrigger>
+        </TabsList>
 
-          {/* Meeting History */}
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <Calendar className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold">Meeting History</h3>
-            </div>
-            {meetings.length === 0 ? (
-              <Card className="p-8 text-center">
-                <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground mb-1">No meetings yet</p>
-                <p className="text-xs text-muted-foreground">
-                  Meetings will auto-log from Google Calendar
-                </p>
-              </Card>
-            ) : (
-              <div className="space-y-2">
-                {meetings.map((meeting) => (
-                  <Card key={meeting.id} className="p-3">
-                    <p className="text-sm font-medium">{meeting.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(meeting.start_time).toLocaleString()}
-                    </p>
-                    {meeting.meeting_notes && (
-                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                        {meeting.meeting_notes}
-                      </p>
-                    )}
-                  </Card>
-                ))}
+        <ScrollArea className="flex-1">
+          <TabsContent value="overview" className="p-6 space-y-6 m-0">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Paperclip className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold">Attachments ({attachments.length})</h3>
               </div>
-            )}
-          </div>
-
-          {/* Activities */}
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <Activity className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold">Activities</h3>
-            </div>
-            {activities.length === 0 ? (
-              <Card className="p-8 text-center">
-                <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">No activities logged</p>
-              </Card>
-            ) : (
-              <div className="space-y-2">
-                {activities.map((activity) => (
-                  <Card key={activity.id} className="p-3">
-                    <div className="flex items-start justify-between mb-1">
-                      <p className="text-sm font-medium">{activity.subject}</p>
-                      <Badge variant="secondary" className="text-xs">
-                        {activity.activity_type}
-                      </Badge>
-                    </div>
-                    {activity.description && (
-                      <p className="text-xs text-muted-foreground line-clamp-2">{activity.description}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(activity.activity_date).toLocaleDateString()}
-                    </p>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Notes */}
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <FileText className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold">Notes</h3>
-            </div>
-            {contact.notes && (
-              <Card className="p-3 mb-3 bg-secondary/50">
-                <p className="text-sm whitespace-pre-wrap">{contact.notes}</p>
-              </Card>
-            )}
-            <Card className="p-3">
-              <Textarea
-                placeholder="Add a note..."
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                className="min-h-[80px] mb-2 border-0 p-0 focus-visible:ring-0 shadow-none resize-none"
+              <FileAttachment
+                entityType="contact"
+                entityId={contactId}
+                attachments={attachments}
+                onUploadComplete={fetchContactDetails}
               />
-              <Button 
-                onClick={handleSaveNote}
-                size="sm" 
-                className="w-full"
-                disabled={!newNote.trim()}
-              >
-                <Send className="mr-2 h-3 w-3" />
-                Save Note
-              </Button>
-            </Card>
-          </div>
-        </div>
-      </ScrollArea>
+            </div>
 
-      {/* Edit Dialog */}
+            {contact.notes && (
+              <div>
+                <h3 className="font-semibold mb-3">Notes</h3>
+                <div className="p-3 bg-secondary/50 rounded-lg">
+                  <p className="text-sm whitespace-pre-wrap">{contact.notes}</p>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="activity" className="p-6 m-0">
+            <ActivityHistory entityType="contact" entityId={contactId} />
+          </TabsContent>
+
+          <TabsContent value="related" className="p-6 m-0">
+            <RelatedRecords entityType="contact" entityId={contactId} />
+          </TabsContent>
+        </ScrollArea>
+      </Tabs>
+
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -410,7 +291,6 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
         </DialogContent>
       </Dialog>
 
-      {/* Activity Dialog */}
       <Dialog open={showActivityDialog} onOpenChange={setShowActivityDialog}>
         <DialogContent>
           <DialogHeader>

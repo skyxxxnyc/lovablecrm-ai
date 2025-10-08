@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { InlineEditField } from "./detail-panels/InlineEditField";
+import { ActivityHistory } from "./detail-panels/ActivityHistory";
+import { FileAttachment } from "./FileAttachment";
+import { RelatedRecords } from "./detail-panels/RelatedRecords";
+import { QuickActions } from "./detail-panels/QuickActions";
 import { 
   X, 
   Globe, 
@@ -14,11 +18,7 @@ import {
   MapPin,
   Edit,
   Trash2,
-  Send,
-  FileText,
-  Users,
-  Briefcase,
-  ExternalLink
+  Paperclip
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -37,26 +37,18 @@ interface Company {
   notes: string | null;
 }
 
-interface Contact {
+interface Attachment {
   id: string;
-  first_name: string;
-  last_name: string;
-  email: string | null;
-  position: string | null;
-}
-
-interface Deal {
-  id: string;
-  title: string;
-  stage: string;
-  amount: number | null;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  storage_path: string;
+  created_at: string;
 }
 
 const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => {
   const [company, setCompany] = useState<Company | null>(null);
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [deals, setDeals] = useState<Deal[]>([]);
-  const [newNote, setNewNote] = useState("");
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -101,50 +93,15 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
       address: companyData.address || "",
     });
 
-    const { data: contactData } = await supabase
-      .from('contacts')
+    const { data: attachmentData } = await supabase
+      .from('attachments')
       .select('*')
-      .eq('company_id', companyId)
+      .eq('entity_type', 'company')
+      .eq('entity_id', companyId)
       .order('created_at', { ascending: false });
 
-    setContacts(contactData || []);
-
-    const { data: dealData } = await supabase
-      .from('deals')
-      .select('*')
-      .eq('company_id', companyId)
-      .order('created_at', { ascending: false });
-
-    setDeals(dealData || []);
+    setAttachments(attachmentData || []);
     setLoading(false);
-  };
-
-  const handleSaveNote = async () => {
-    if (!newNote.trim()) return;
-
-    const { error } = await supabase
-      .from('companies')
-      .update({ notes: newNote })
-      .eq('id', companyId);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save note",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Success",
-      description: "Note saved successfully",
-    });
-    
-    if (company) {
-      setCompany({ ...company, notes: newNote });
-    }
-    setNewNote("");
   };
 
   const handleEdit = async () => {
@@ -196,6 +153,39 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
     onClose();
   };
 
+  const handleFieldSave = async (field: string, value: string) => {
+    const { error } = await supabase
+      .from('companies')
+      .update({ [field]: value })
+      .eq('id', companyId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: `Failed to update ${field}`,
+        variant: "destructive",
+      });
+      throw error;
+    }
+
+    toast({
+      title: "Saved",
+      description: `${field} updated successfully`,
+    });
+
+    if (company) {
+      setCompany({ ...company, [field]: value });
+    }
+  };
+
+  const handleQuickAction = (action: string) => {
+    // Handle quick actions like adding contacts, deals, etc.
+    toast({
+      title: "Coming soon",
+      description: "Quick actions will be available soon",
+    });
+  };
+
   if (loading || !company) {
     return (
       <aside className="w-96 border-l border-border bg-card flex items-center justify-center">
@@ -232,125 +222,79 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
           </div>
         </div>
 
-        {company.website && (
-          <div className="flex items-center space-x-2 text-sm mb-2">
-            <Globe className="h-4 w-4 text-muted-foreground" />
-            <a 
-              href={company.website} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              {company.website}
-            </a>
-          </div>
-        )}
+        <div className="space-y-2 mb-4">
+          <InlineEditField
+            value={company.website}
+            onSave={(value) => handleFieldSave("website", value)}
+            type="url"
+            placeholder="Add website"
+            prefix={<Globe className="h-4 w-4 text-muted-foreground" />}
+          />
+          
+          <InlineEditField
+            value={company.phone}
+            onSave={(value) => handleFieldSave("phone", value)}
+            type="tel"
+            placeholder="Add phone"
+            prefix={<Phone className="h-4 w-4 text-muted-foreground" />}
+          />
 
-        {company.phone && (
-          <div className="flex items-center space-x-2 text-sm mb-2">
-            <Phone className="h-4 w-4 text-muted-foreground" />
-            <span>{company.phone}</span>
-          </div>
-        )}
+          <InlineEditField
+            value={company.address}
+            onSave={(value) => handleFieldSave("address", value)}
+            placeholder="Add address"
+            prefix={<MapPin className="h-4 w-4 text-muted-foreground" />}
+          />
+        </div>
 
-        {company.address && (
-          <div className="flex items-center space-x-2 text-sm mb-4">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span>{company.address}</span>
-          </div>
-        )}
+        <QuickActions
+          entityType="company"
+          entityId={companyId}
+          onAction={handleQuickAction}
+        />
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="p-6 space-y-6">
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <Users className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold">Contacts ({contacts.length})</h3>
-            </div>
-            {contacts.length === 0 ? (
-              <Card className="p-8 text-center">
-                <Users className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">No contacts yet</p>
-              </Card>
-            ) : (
-              <div className="space-y-2">
-                {contacts.map((contact) => (
-                  <Card key={contact.id} className="p-3">
-                    <p className="text-sm font-medium">
-                      {contact.first_name} {contact.last_name}
-                    </p>
-                    {contact.position && (
-                      <p className="text-xs text-muted-foreground">{contact.position}</p>
-                    )}
-                    {contact.email && (
-                      <p className="text-xs text-muted-foreground">{contact.email}</p>
-                    )}
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
+      <Tabs defaultValue="overview" className="flex-1 flex flex-col overflow-hidden">
+        <TabsList className="mx-6 mt-2">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="related">Related</TabsTrigger>
+        </TabsList>
 
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <Briefcase className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold">Deals ({deals.length})</h3>
-            </div>
-            {deals.length === 0 ? (
-              <Card className="p-8 text-center">
-                <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">No deals yet</p>
-              </Card>
-            ) : (
-              <div className="space-y-2">
-                {deals.map((deal) => (
-                  <Card key={deal.id} className="p-3">
-                    <div className="flex items-start justify-between mb-1">
-                      <p className="text-sm font-medium">{deal.title}</p>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{deal.stage}</p>
-                    {deal.amount && (
-                      <p className="text-xs font-semibold mt-1">
-                        ${deal.amount.toLocaleString()}
-                      </p>
-                    )}
-                  </Card>
-                ))}
+        <ScrollArea className="flex-1">
+          <TabsContent value="overview" className="p-6 space-y-6 m-0">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Paperclip className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold">Attachments ({attachments.length})</h3>
               </div>
-            )}
-          </div>
-
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <FileText className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold">Notes</h3>
-            </div>
-            {company.notes && (
-              <Card className="p-3 mb-3 bg-secondary/50">
-                <p className="text-sm whitespace-pre-wrap">{company.notes}</p>
-              </Card>
-            )}
-            <Card className="p-3">
-              <Textarea
-                placeholder="Add a note..."
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                className="min-h-[80px] mb-2 border-0 p-0 focus-visible:ring-0 shadow-none resize-none"
+              <FileAttachment
+                entityType="company"
+                entityId={companyId}
+                attachments={attachments}
+                onUploadComplete={fetchCompanyDetails}
               />
-              <Button 
-                onClick={handleSaveNote}
-                size="sm" 
-                className="w-full"
-                disabled={!newNote.trim()}
-              >
-                <Send className="mr-2 h-3 w-3" />
-                Save Note
-              </Button>
-            </Card>
-          </div>
-        </div>
-      </ScrollArea>
+            </div>
+
+            {company.notes && (
+              <div>
+                <h3 className="font-semibold mb-3">Notes</h3>
+                <div className="p-3 bg-secondary/50 rounded-lg">
+                  <p className="text-sm whitespace-pre-wrap">{company.notes}</p>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="activity" className="p-6 m-0">
+            <ActivityHistory entityType="company" entityId={companyId} />
+          </TabsContent>
+
+          <TabsContent value="related" className="p-6 m-0">
+            <RelatedRecords entityType="company" entityId={companyId} />
+          </TabsContent>
+        </ScrollArea>
+      </Tabs>
 
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-2xl">
