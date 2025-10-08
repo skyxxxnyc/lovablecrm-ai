@@ -10,7 +10,11 @@ import Sidebar from "@/components/Sidebar";
 import { Onboarding } from "@/components/Onboarding";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
+import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
+import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Activity, X } from "lucide-react";
 
 const Dashboard = () => {
@@ -101,10 +105,33 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <ChatInterface 
-              user={user} 
-              onContactCreated={(contactId) => setSelectedContactId(contactId)}
-            />
+            <Tabs defaultValue="chat" className="flex-1 flex flex-col overflow-hidden">
+              <div className="border-b border-border px-6">
+                <TabsList>
+                  <TabsTrigger value="chat">AI Chat</TabsTrigger>
+                  <TabsTrigger value="metrics">Metrics</TabsTrigger>
+                  <TabsTrigger value="activity">Activity</TabsTrigger>
+                </TabsList>
+              </div>
+              
+              <TabsContent value="chat" className="flex-1 overflow-auto m-0">
+                <ChatInterface 
+                  user={user} 
+                  onContactCreated={(contactId) => setSelectedContactId(contactId)}
+                />
+              </TabsContent>
+              
+              <TabsContent value="metrics" className="flex-1 overflow-auto p-6 m-0">
+                <div className="space-y-6">
+                  <DashboardMetrics />
+                  <DashboardCharts />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="activity" className="flex-1 overflow-auto p-6 m-0">
+                <ActivityTimeline />
+              </TabsContent>
+            </Tabs>
           </div>
           
           {showActivityFeed && (

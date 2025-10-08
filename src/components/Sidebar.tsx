@@ -20,7 +20,8 @@ import {
   BookOpen,
   Settings,
   Moon,
-  Sun
+  Sun,
+  TrendingUp
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
@@ -196,6 +197,11 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
           onClick={() => handleViewChange('tasks')} 
         />
         <div className="pt-2 border-t border-border" />
+        <NavButton 
+          icon={TrendingUp} 
+          label="Pipeline" 
+          onClick={() => navigate('/pipeline')} 
+        />
         <NavButton 
           icon={Zap} 
           label="Workflows" 
