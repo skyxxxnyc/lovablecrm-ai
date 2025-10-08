@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, Plus, Trash2, Download, Upload, Star, Copy } from "lucide-react";
+import { BookOpen, Plus, Trash2, Download, Upload, Star, Copy, Sparkles, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Prompt {
   id: string;
@@ -24,6 +25,9 @@ interface Prompt {
 const PromptLibrary = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [showDialog, setShowDialog] = useState(false);
+  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [formData, setFormData] = useState({ title: '', content: '', category: '', tags: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
@@ -135,6 +139,82 @@ const PromptLibrary = () => {
       title: "Copied",
       description: "Prompt copied to clipboard",
     });
+  };
+
+  const handlePromptClick = (prompt: Prompt) => {
+    setSelectedPrompt(prompt);
+    setFormData({
+      title: prompt.title,
+      content: prompt.content,
+      category: prompt.category || '',
+      tags: prompt.tags?.join(', ') || '',
+    });
+    setIsEditing(false);
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedPrompt) return;
+
+    const tags = formData.tags.split(',').map(t => t.trim()).filter(Boolean);
+
+    const { error } = await supabase
+      .from('prompts')
+      .update({
+        title: formData.title,
+        content: formData.content,
+        category: formData.category || null,
+        tags: tags.length > 0 ? tags : null,
+      })
+      .eq('id', selectedPrompt.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update prompt",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Prompt updated successfully",
+      });
+      setIsEditing(false);
+      fetchPrompts();
+      setSelectedPrompt({ ...selectedPrompt, ...formData, tags: tags.length > 0 ? tags : null });
+    }
+  };
+
+  const handleEnhance = async () => {
+    if (!selectedPrompt) return;
+
+    setIsEnhancing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('enhance-prompt', {
+        body: { content: formData.content }
+      });
+
+      if (error) throw error;
+
+      if (data?.enhancedContent) {
+        setFormData({ ...formData, content: data.enhancedContent });
+        toast({
+          title: "Enhanced!",
+          description: "Your prompt has been improved with AI",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to enhance prompt",
+        variant: "destructive",
+      });
+    } finally {
+      setIsEnhancing(false);
+    }
   };
 
   const handleExportJSON = () => {
@@ -319,7 +399,7 @@ const PromptLibrary = () => {
             </Card>
           ) : (
             filteredPrompts.map((prompt) => (
-              <Card key={prompt.id}>
+              <Card key={prompt.id} className="cursor-pointer hover:border-primary transition-colors" onClick={() => handlePromptClick(prompt)}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -335,21 +415,30 @@ const PromptLibrary = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleToggleFavorite(prompt)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleFavorite(prompt);
+                        }}
                       >
                         <Star className={`h-4 w-4 ${prompt.is_favorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleCopy(prompt.content)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(prompt.content);
+                        }}
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(prompt.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(prompt.id);
+                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -357,7 +446,7 @@ const PromptLibrary = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{prompt.content}</p>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{prompt.content}</p>
                   {prompt.tags && prompt.tags.length > 0 && (
                     <div className="flex gap-2 mt-4">
                       {prompt.tags.map((tag, i) => (
@@ -424,6 +513,107 @@ const PromptLibrary = () => {
               <Button type="submit">Save Prompt</Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!selectedPrompt} onOpenChange={() => setSelectedPrompt(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh]">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="flex items-center gap-2">
+                {isEditing ? (
+                  <Input
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    className="text-lg font-semibold"
+                  />
+                ) : (
+                  <>
+                    {selectedPrompt?.title}
+                    {selectedPrompt?.is_favorite && <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />}
+                  </>
+                )}
+              </DialogTitle>
+              <div className="flex items-center gap-2">
+                {isEditing ? (
+                  <>
+                    <Button onClick={handleEnhance} disabled={isEnhancing} variant="outline" size="sm">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      {isEnhancing ? 'Enhancing...' : 'Enhance'}
+                    </Button>
+                    <Button onClick={handleSaveEdit} size="sm">
+                      Save
+                    </Button>
+                    <Button onClick={() => setIsEditing(false)} variant="outline" size="sm">
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button onClick={handleEdit} variant="outline" size="sm">
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </Button>
+                    <Button onClick={() => selectedPrompt && handleCopy(selectedPrompt.content)} variant="outline" size="sm">
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="space-y-4">
+              {isEditing && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-category">Category</Label>
+                    <Input
+                      id="edit-category"
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      placeholder="e.g., Sales, Support, Marketing"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-tags">Tags (comma-separated)</Label>
+                    <Input
+                      id="edit-tags"
+                      value={formData.tags}
+                      onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                      placeholder="e.g., email, professional, quick"
+                    />
+                  </div>
+                </>
+              )}
+              {!isEditing && selectedPrompt?.category && (
+                <Badge variant="outline">{selectedPrompt.category}</Badge>
+              )}
+              <div className="space-y-2">
+                <Label>Prompt Content</Label>
+                {isEditing ? (
+                  <Textarea
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    rows={15}
+                    className="font-mono text-sm"
+                  />
+                ) : (
+                  <div className="p-4 bg-muted rounded-md">
+                    <p className="text-sm whitespace-pre-wrap">{selectedPrompt?.content}</p>
+                  </div>
+                )}
+              </div>
+              {!isEditing && selectedPrompt?.tags && selectedPrompt.tags.length > 0 && (
+                <div className="flex gap-2 flex-wrap">
+                  {selectedPrompt.tags.map((tag, i) => (
+                    <Badge key={i} variant="secondary">{tag}</Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>

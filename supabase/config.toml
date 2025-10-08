@@ -3,5 +3,11 @@ project_id = "adevhdkpbelglaxfjvqr"
 [functions.crm-chat]
 verify_jwt = false
 
+[functions.execute-workflow]
+verify_jwt = true
+
 [functions.process-automation-rules]
 verify_jwt = false
+
+[functions.enhance-prompt]
+verify_jwt = true
