@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import ChatInterface from "@/components/ChatInterface";
 import ContactDetailPanel from "@/components/ContactDetailPanel";
+import DealDetailPanel from "@/components/DealDetailPanel";
+import CompanyDetailPanel from "@/components/CompanyDetailPanel";
 import Sidebar from "@/components/Sidebar";
 import { Loader2 } from "lucide-react";
 
@@ -11,6 +13,9 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [currentView, setCurrentView] = useState<'chat' | 'contacts' | 'deals' | 'companies' | 'tasks'>('chat');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,7 +54,12 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar onContactSelect={setSelectedContactId} />
+      <Sidebar 
+        onContactSelect={setSelectedContactId}
+        onDealSelect={setSelectedDealId}
+        onCompanySelect={setSelectedCompanyId}
+        onViewChange={setCurrentView}
+      />
       
       <main className="flex-1 flex overflow-hidden">
         <div className="flex-1 flex flex-col">
@@ -63,6 +73,20 @@ const Dashboard = () => {
           <ContactDetailPanel 
             contactId={selectedContactId}
             onClose={() => setSelectedContactId(null)}
+          />
+        )}
+        
+        {selectedDealId && (
+          <DealDetailPanel 
+            dealId={selectedDealId}
+            onClose={() => setSelectedDealId(null)}
+          />
+        )}
+        
+        {selectedCompanyId && (
+          <CompanyDetailPanel 
+            companyId={selectedCompanyId}
+            onClose={() => setSelectedCompanyId(null)}
           />
         )}
       </main>

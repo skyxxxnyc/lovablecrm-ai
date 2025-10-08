@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Sparkles, 
   Search, 
@@ -19,6 +20,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 interface SidebarProps {
   onContactSelect: (contactId: string) => void;
+  onDealSelect: (dealId: string) => void;
+  onCompanySelect: (companyId: string) => void;
+  onViewChange: (view: 'chat' | 'contacts' | 'deals' | 'companies' | 'tasks') => void;
 }
 
 interface Contact {
@@ -29,33 +33,32 @@ interface Contact {
   position: string | null;
 }
 
-const Sidebar = ({ onContactSelect }: SidebarProps) => {
+interface Deal {
+  id: string;
+  title: string;
+  stage: string;
+  amount: number | null;
+}
+
+interface Company {
+  id: string;
+  name: string;
+  industry: string | null;
+}
+
+const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange }: SidebarProps) => {
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [deals, setDeals] = useState<Deal[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [activeView, setActiveView] = useState<'chat' | 'contacts' | 'deals' | 'companies' | 'tasks'>('chat');
+  const [isExpanded, setIsExpanded] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     fetchContacts();
-
-    const channel = supabase
-      .channel('contacts-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'contacts'
-        },
-        () => {
-          fetchContacts();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    fetchDeals();
+    fetchCompanies();
   }, []);
 
   const fetchContacts = async () => {
@@ -73,6 +76,36 @@ const Sidebar = ({ onContactSelect }: SidebarProps) => {
     setContacts(data || []);
   };
 
+  const fetchDeals = async () => {
+    const { data, error } = await supabase
+      .from('deals')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error) {
+      console.error('Error fetching deals:', error);
+      return;
+    }
+
+    setDeals(data || []);
+  };
+
+  const fetchCompanies = async () => {
+    const { data, error } = await supabase
+      .from('companies')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error) {
+      console.error('Error fetching companies:', error);
+      return;
+    }
+
+    setCompanies(data || []);
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     toast({
@@ -82,12 +115,18 @@ const Sidebar = ({ onContactSelect }: SidebarProps) => {
     navigate("/auth");
   };
 
-  const NavButton = ({ icon: Icon, label, onClick }: { icon: any; label: string; onClick?: () => void }) => (
+  const handleViewChange = (view: typeof activeView) => {
+    setActiveView(view);
+    onViewChange(view);
+    if (!isExpanded) setIsExpanded(true);
+  };
+
+  const NavButton = ({ icon: Icon, label, active, onClick }: { icon: any; label: string; active?: boolean; onClick?: () => void }) => (
     <TooltipProvider>
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
           <Button
-            variant="ghost"
+            variant={active ? "secondary" : "ghost"}
             size="icon"
             className="w-10 h-10 rounded-lg hover:bg-secondary"
             onClick={onClick}
@@ -112,14 +151,119 @@ const Sidebar = ({ onContactSelect }: SidebarProps) => {
       </div>
 
       {/* Navigation Icons */}
-      <div className="p-3 space-y-2 flex-1">
+      <div className="p-3 space-y-2">
         <NavButton icon={Plus} label="New" />
         <NavButton icon={Search} label="Search" />
-        <NavButton icon={Users} label="Contacts" />
-        <NavButton icon={Building2} label="Companies" />
-        <NavButton icon={Briefcase} label="Deals" />
-        <NavButton icon={CheckSquare} label="Tasks" />
+        <div className="pt-2 border-t border-border" />
+        <NavButton 
+          icon={Sparkles} 
+          label="AI Chat" 
+          active={activeView === 'chat'}
+          onClick={() => handleViewChange('chat')} 
+        />
+        <NavButton 
+          icon={Users} 
+          label="Contacts" 
+          active={activeView === 'contacts'}
+          onClick={() => handleViewChange('contacts')} 
+        />
+        <NavButton 
+          icon={Building2} 
+          label="Companies" 
+          active={activeView === 'companies'}
+          onClick={() => handleViewChange('companies')} 
+        />
+        <NavButton 
+          icon={Briefcase} 
+          label="Deals" 
+          active={activeView === 'deals'}
+          onClick={() => handleViewChange('deals')} 
+        />
+        <NavButton 
+          icon={CheckSquare} 
+          label="Tasks" 
+          active={activeView === 'tasks'}
+          onClick={() => handleViewChange('tasks')} 
+        />
       </div>
+
+      {/* Expanded List View */}
+      {isExpanded && activeView !== 'chat' && (
+        <div className="flex-1 border-l border-border overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-4">
+              <h3 className="font-semibold mb-4 capitalize">{activeView}</h3>
+              <div className="space-y-1">
+                {activeView === 'contacts' && contacts.map((contact) => (
+                  <Button
+                    key={contact.id}
+                    variant="ghost"
+                    className="w-full justify-start text-left h-auto py-2"
+                    onClick={() => {
+                      onContactSelect(contact.id);
+                      setActiveView('chat');
+                    }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {contact.first_name} {contact.last_name}
+                      </p>
+                      {contact.position && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {contact.position}
+                        </p>
+                      )}
+                    </div>
+                  </Button>
+                ))}
+                
+                {activeView === 'deals' && deals.map((deal) => (
+                  <Button
+                    key={deal.id}
+                    variant="ghost"
+                    className="w-full justify-start text-left h-auto py-2"
+                    onClick={() => {
+                      onDealSelect(deal.id);
+                      setActiveView('chat');
+                    }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{deal.title}</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground">{deal.stage}</p>
+                        {deal.amount && (
+                          <p className="text-xs font-semibold">${deal.amount.toLocaleString()}</p>
+                        )}
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+                
+                {activeView === 'companies' && companies.map((company) => (
+                  <Button
+                    key={company.id}
+                    variant="ghost"
+                    className="w-full justify-start text-left h-auto py-2"
+                    onClick={() => {
+                      onCompanySelect(company.id);
+                      setActiveView('chat');
+                    }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{company.name}</p>
+                      {company.industry && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {company.industry}
+                        </p>
+                      )}
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </ScrollArea>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="p-3 border-t border-border space-y-2">
