@@ -30,6 +30,9 @@ import { useState } from "react";
 interface ChatInterfaceProps {
   user: User | null;
   onContactCreated?: (contactId: string) => void;
+  onContactSelect?: (contactId: string) => void;
+  onDealSelect?: (dealId: string) => void;
+  onCompanySelect?: (companyId: string) => void;
 }
 
 const promptSuggestions = [
@@ -51,7 +54,7 @@ const promptSuggestions = [
   },
 ];
 
-const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
+const ChatInterface = ({ user, onContactCreated, onContactSelect, onDealSelect, onCompanySelect }: ChatInterfaceProps) => {
   const [input, setInput] = useState("");
   const [userName, setUserName] = useState("there");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -65,6 +68,15 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
         description: error,
         variant: "destructive",
       });
+    },
+    onOpenDetail: (entityType, entityId) => {
+      if (entityType === 'contact' && onContactSelect) {
+        onContactSelect(entityId);
+      } else if (entityType === 'deal' && onDealSelect) {
+        onDealSelect(entityId);
+      } else if (entityType === 'company' && onCompanySelect) {
+        onCompanySelect(entityId);
+      }
     },
   });
 
@@ -147,13 +159,6 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
                   Use one of the most common prompts below or use your own to begin
                 </p>
               </div>
-
-              {user && (
-                <SmartSuggestions 
-                  userId={user.id} 
-                  onSuggestionClick={(text) => handleSend(text)}
-                />
-              )}
 
               <div className="grid grid-cols-4 gap-3 mb-8">
                 {promptSuggestions.map((suggestion, index) => (
@@ -244,6 +249,17 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
       {/* Input */}
       <div className="border-t border-border bg-card p-6">
         <div className="max-w-5xl mx-auto">
+          {/* Smart Suggestions */}
+          {user && (
+            <div className="mb-4">
+              <SmartSuggestions 
+                userId={user.id} 
+                onSuggestionClick={(text) => handleSend(text)}
+                recentMessages={messages}
+              />
+            </div>
+          )}
+          
           <div className="relative bg-background rounded-2xl border border-border">
             <Textarea
               value={input}

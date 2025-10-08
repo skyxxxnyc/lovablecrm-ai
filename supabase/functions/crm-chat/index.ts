@@ -187,6 +187,71 @@ Be concise, helpful, and proactive in suggesting actions.`;
 async function detectIntentAndExecute(message: string, userId: string, supabase: any) {
   const lowerMsg = message.toLowerCase();
   
+  // Detect intent to open specific entity detail panel
+  const viewPatterns = [
+    /(?:show|see|view|open|display)\s+(?:me\s+)?(?:the\s+)?(.+?)(?:'s|s)\s+(?:card|details?|profile|info|information|panel)/i,
+    /(?:show|see|view|open|display)\s+(?:details?|card|profile|info)\s+(?:for|of)\s+(.+)/i
+  ];
+  
+  for (const pattern of viewPatterns) {
+    const match = message.match(pattern);
+    if (match && match[1]) {
+      const searchTerm = match[1].trim();
+      
+      // Try to find contact
+      const { data: contacts } = await supabase
+        .from('contacts')
+        .select('id, first_name, last_name')
+        .eq('user_id', userId)
+        .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%`)
+        .limit(1);
+      
+      if (contacts && contacts.length > 0) {
+        return {
+          type: 'open_detail',
+          data: { entity_type: 'contact', entity_id: contacts[0].id },
+          message: `Opening details for ${contacts[0].first_name} ${contacts[0].last_name}`
+        };
+      }
+      
+      // Try to find deal
+      const { data: deals } = await supabase
+        .from('deals')
+        .select('id, title')
+        .eq('user_id', userId)
+        .ilike('title', `%${searchTerm}%`)
+        .limit(1);
+      
+      if (deals && deals.length > 0) {
+        return {
+          type: 'open_detail',
+          data: { entity_type: 'deal', entity_id: deals[0].id },
+          message: `Opening deal: ${deals[0].title}`
+        };
+      }
+      
+      // Try to find company
+      const { data: companies } = await supabase
+        .from('companies')
+        .select('id, name')
+        .eq('user_id', userId)
+        .ilike('name', `%${searchTerm}%`)
+        .limit(1);
+      
+      if (companies && companies.length > 0) {
+        return {
+          type: 'open_detail',
+          data: { entity_type: 'company', entity_id: companies[0].id },
+          message: `Opening company: ${companies[0].name}`
+        };
+      }
+      
+      return {
+        message: `I couldn't find any contact, deal, or company matching "${searchTerm}"`
+      };
+    }
+  }
+  
   if (lowerMsg.includes('show') && (lowerMsg.includes('contact') || lowerMsg.includes('people'))) {
     const { data, error } = await supabase
       .from('contacts')

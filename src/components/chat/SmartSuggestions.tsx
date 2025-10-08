@@ -18,9 +18,10 @@ interface Suggestion {
 interface SmartSuggestionsProps {
   userId: string;
   onSuggestionClick?: (text: string) => void;
+  recentMessages?: Array<{ role: string; content: string }>;
 }
 
-export const SmartSuggestions = ({ userId, onSuggestionClick }: SmartSuggestionsProps) => {
+export const SmartSuggestions = ({ userId, onSuggestionClick, recentMessages }: SmartSuggestionsProps) => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -51,7 +52,7 @@ export const SmartSuggestions = ({ userId, onSuggestionClick }: SmartSuggestions
 
   useEffect(() => {
     loadSuggestions();
-  }, [userId]);
+  }, [userId, recentMessages]);
 
   const dismissSuggestion = async (id: string) => {
     try {
@@ -92,7 +93,7 @@ export const SmartSuggestions = ({ userId, onSuggestionClick }: SmartSuggestions
     }
   };
 
-  if (suggestions.length === 0) {
+  if (suggestions.length === 0 && (!recentMessages || recentMessages.length === 0)) {
     return null;
   }
 

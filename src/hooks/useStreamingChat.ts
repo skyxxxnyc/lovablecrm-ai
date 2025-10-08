@@ -12,9 +12,10 @@ export interface Message {
 interface UseStreamingChatProps {
   user: User | null;
   onError?: (error: string) => void;
+  onOpenDetail?: (entityType: 'contact' | 'deal' | 'company', entityId: string) => void;
 }
 
-export const useStreamingChat = ({ user, onError }: UseStreamingChatProps) => {
+export const useStreamingChat = ({ user, onError, onOpenDetail }: UseStreamingChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,6 +52,11 @@ export const useStreamingChat = ({ user, onError }: UseStreamingChatProps) => {
       // Check if response is structured data (JSON)
       if (contentType?.includes('application/json')) {
         const result = await response.json();
+        
+        // Handle open_detail action
+        if (result.type === 'open_detail' && result.data && onOpenDetail) {
+          onOpenDetail(result.data.entity_type, result.data.entity_id);
+        }
         
         setMessages(prev => [...prev, { 
           role: 'assistant', 
@@ -143,7 +149,7 @@ export const useStreamingChat = ({ user, onError }: UseStreamingChatProps) => {
     } finally {
       setIsLoading(false);
     }
-  }, [messages, isLoading, user, onError]);
+  }, [messages, isLoading, user, onError, onOpenDetail]);
 
   return {
     messages,

@@ -116,6 +116,9 @@ const Dashboard = () => {
                 <ChatInterface 
                   user={user} 
                   onContactCreated={(contactId) => setSelectedContactId(contactId)}
+                  onContactSelect={(contactId) => setSelectedContactId(contactId)}
+                  onDealSelect={(dealId) => setSelectedDealId(dealId)}
+                  onCompanySelect={(companyId) => setSelectedCompanyId(companyId)}
                 />
               </TabsContent>
               
