@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,54 +6,59 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useStreamingChat } from "@/hooks/useStreamingChat";
 import { 
   Send, 
   Paperclip, 
   Image as ImageIcon,
   Loader2,
   RefreshCw,
-  User2,
   Mail,
   FileText,
   Sparkles
 } from "lucide-react";
+import { useState } from "react";
 
 interface ChatInterfaceProps {
   user: User | null;
   onContactCreated?: (contactId: string) => void;
 }
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
-
 const promptSuggestions = [
   {
-    text: "Write a to-do list for a personal project or task",
+    text: "Create a contact for Sarah Johnson at Tech Corp",
     icon: FileText,
   },
   {
-    text: "Generate an email reply to a job offer",
+    text: "Show me all my high priority tasks",
     icon: Mail,
   },
   {
-    text: "Summarise this article or text for me in one paragraph",
+    text: "Add a follow-up task for John Smith tomorrow",
     icon: FileText,
   },
   {
-    text: "How does AI work in a technical capacity",
+    text: "What deals are in negotiation stage?",
     icon: Sparkles,
   },
 ];
 
 const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState("there");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const { messages, isLoading, sendMessage } = useStreamingChat({
+    user,
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive",
+      });
+    },
+  });
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -61,7 +66,7 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
         .from('profiles')
         .select('full_name')
         .eq('id', user?.id)
-        .single();
+        .maybeSingle();
       
       if (data?.full_name) {
         const firstName = data.full_name.split(' ')[0];
@@ -82,42 +87,10 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
 
   const handleSend = async (messageText?: string) => {
     const textToSend = messageText || input;
-    if (!textToSend.trim() || loading) return;
-
-    const userMessage: Message = { role: "user", content: textToSend };
-    setMessages(prev => [...prev, userMessage]);
+    if (!textToSend.trim()) return;
+    
     setInput("");
-    setLoading(true);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('crm-chat', {
-        body: { 
-          messages: [...messages, userMessage],
-          userId: user?.id 
-        }
-      });
-
-      if (error) throw error;
-
-      const assistantMessage: Message = { 
-        role: "assistant", 
-        content: data.message 
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
-
-      if (data.contactId && onContactCreated) {
-        onContactCreated(data.contactId);
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send message",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    await sendMessage(textToSend);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -182,7 +155,7 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
                   </div>
                 </div>
               ))}
-              {loading && (
+              {isLoading && (
                 <div className="flex justify-start">
                   <div className="bg-card border border-border rounded-2xl px-4 py-3">
                     <Loader2 className="h-5 w-5 animate-spin text-primary" />
@@ -220,11 +193,11 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
               </span>
               <Button
                 onClick={() => handleSend()}
-                disabled={!input.trim() || loading}
+                disabled={!input.trim() || isLoading}
                 size="icon"
                 className="h-9 w-9 rounded-lg"
               >
-                {loading ? (
+                {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Send className="h-4 w-4" />
