@@ -131,10 +131,10 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
     <div className="flex flex-col h-full bg-[hsl(var(--chat-bg))]">
       {/* Messages */}
       <ScrollArea className="flex-1" ref={scrollAreaRef}>
-        <div className="max-w-4xl mx-auto px-6 py-12">
+        <div className="max-w-5xl mx-auto px-6 py-12">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-300px)]">
-              <div className="text-center mb-12 space-y-3">
+            <div className="flex flex-col justify-center min-h-[calc(100vh-300px)]">
+              <div className="text-left mb-12 space-y-3">
                 <h1 className="text-5xl font-bold tracking-tight">
                   Hi there, <span className="text-primary">{userName}</span>
                 </h1>
@@ -146,7 +146,7 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-4 gap-3 w-full max-w-5xl mb-8">
+              <div className="grid grid-cols-4 gap-3 mb-8">
                 {promptSuggestions.map((suggestion, index) => (
                   <Card
                     key={index}
@@ -159,7 +159,7 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
                 ))}
               </div>
 
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground self-start">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh Prompts
               </Button>
@@ -196,7 +196,7 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
 
       {/* Input */}
       <div className="border-t border-border bg-card p-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="relative bg-background rounded-2xl border border-border">
             <Textarea
               value={input}
