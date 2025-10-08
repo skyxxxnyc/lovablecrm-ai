@@ -41,6 +41,17 @@ All colors MUST be HSL.
     --chat-bg: 0 0% 100%;
     --sidebar-width: 72px;
     --sidebar-width-expanded: 260px;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --gradient-primary: linear-gradient(135deg, hsl(25 100% 55%), hsl(25 100% 65%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(220 14% 98%));
+    --shadow-soft: 0 2px 8px -2px hsl(220 10% 10% / 0.08);
+    --shadow-medium: 0 4px 16px -4px hsl(220 10% 10% / 0.12);
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
     --sidebar-background: 0 0% 98%;
 
@@ -89,6 +100,17 @@ All colors MUST be HSL.
     --ring: 25 100% 55%;
     
     --chat-bg: 220 15% 10%;
+    
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --gradient-primary: linear-gradient(135deg, hsl(25 100% 55%), hsl(25 100% 65%));
+    --gradient-card: linear-gradient(135deg, hsl(220 15% 10%), hsl(220 15% 12%));
+    --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.2);
+    --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.3);
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 

@@ -125,32 +125,43 @@ const Workflows = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8 animate-fade-in">
       <div className="max-w-7xl mx-auto">
-        <Breadcrumb className="mb-4">
+        <Breadcrumb className="mb-6">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+              <BreadcrumbLink href="/dashboard" className="transition-colors hover:text-primary">
+                Dashboard
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Workflows</BreadcrumbPage>
+              <BreadcrumbPage className="font-medium">Workflows</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Workflows & Automations</h1>
-            <p className="text-muted-foreground">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+          <div className="space-y-1">
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Workflows & Automations
+            </h1>
+            <p className="text-muted-foreground text-sm md:text-base">
               Automate your CRM tasks and streamline your workflow
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate('/integrations')}>
+          <div className="flex gap-2 w-full md:w-auto">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/integrations')}
+              className="flex-1 md:flex-initial transition-all hover:border-primary hover:text-primary"
+            >
               <Settings className="mr-2 h-4 w-4" />
               Integrations
             </Button>
-            <Button onClick={() => setShowCreateDialog(true)}>
+            <Button 
+              onClick={() => setShowCreateDialog(true)}
+              className="flex-1 md:flex-initial shadow-md hover:shadow-lg transition-all hover:scale-105"
+            >
               <Plus className="mr-2 h-4 w-4" />
               New Workflow
             </Button>
@@ -158,47 +169,72 @@ const Workflows = () => {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <p className="text-muted-foreground">Loading workflows...</p>
+          <div className="flex items-center justify-center py-16">
+            <div className="text-center space-y-3">
+              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+              <p className="text-muted-foreground text-sm">Loading workflows...</p>
+            </div>
           </div>
         ) : workflows.length === 0 ? (
-          <Card className="p-12 text-center">
-            <Zap className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No workflows yet</h3>
-            <p className="text-muted-foreground mb-6">
-              Create your first automation workflow to save time
-            </p>
-            <Button onClick={() => setShowCreateDialog(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Workflow
-            </Button>
+          <Card className="p-12 text-center border-2 border-dashed hover:border-primary/50 transition-colors animate-fade-in-up">
+            <div className="max-w-md mx-auto">
+              <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No workflows yet</h3>
+              <p className="text-muted-foreground mb-6">
+                Create your first automation workflow to save time and boost productivity
+              </p>
+              <Button onClick={() => setShowCreateDialog(true)} className="shadow-md hover:shadow-lg transition-all">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Workflow
+              </Button>
+            </div>
           </Card>
         ) : (
           <div className="grid gap-4">
-            {workflows.map((workflow) => (
-              <Card key={workflow.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CardTitle>{workflow.name}</CardTitle>
-                        <Badge variant={workflow.is_active ? "default" : "secondary"}>
+            {workflows.map((workflow, index) => (
+              <Card 
+                key={workflow.id} 
+                className="group hover:shadow-md transition-all duration-300 border hover:border-primary/30 animate-fade-in-up"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
+                        <CardTitle className="text-lg md:text-xl group-hover:text-primary transition-colors">
+                          {workflow.name}
+                        </CardTitle>
+                        <Badge 
+                          variant={workflow.is_active ? "default" : "secondary"}
+                          className={workflow.is_active 
+                            ? "bg-success text-success-foreground shadow-sm" 
+                            : "bg-muted"
+                          }
+                        >
                           {workflow.is_active ? 'Active' : 'Inactive'}
                         </Badge>
                       </div>
                       {workflow.description && (
-                        <CardDescription>{workflow.description}</CardDescription>
+                        <CardDescription className="text-sm line-clamp-2">
+                          {workflow.description}
+                        </CardDescription>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        checked={workflow.is_active}
-                        onCheckedChange={() => handleToggleActive(workflow)}
-                      />
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-2 mr-2">
+                        <Switch
+                          checked={workflow.is_active}
+                          onCheckedChange={() => handleToggleActive(workflow)}
+                          className="data-[state=checked]:bg-success"
+                        />
+                      </div>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => setEditingWorkflow(workflow)}
+                        className="hover:bg-primary/10 hover:text-primary transition-colors"
                       >
                         <Settings className="h-4 w-4" />
                       </Button>
@@ -206,21 +242,27 @@ const Workflows = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(workflow.id)}
+                        className="hover:bg-destructive/10 hover:text-destructive transition-colors"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Play className="h-4 w-4" />
-                      <span>Trigger: {getTriggerLabel(workflow.trigger_type)}</span>
+                <CardContent className="pt-0">
+                  <div className="flex items-center gap-4 text-sm flex-wrap">
+                    <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Play className="h-4 w-4 text-primary" />
+                      </div>
+                      <span className="font-medium">{getTriggerLabel(workflow.trigger_type)}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Zap className="h-4 w-4" />
-                      <span>{workflow.actions?.length || 0} action(s)</span>
+                    <div className="h-4 w-px bg-border"></div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                        <Zap className="h-4 w-4 text-accent" />
+                      </div>
+                      <span className="font-medium">{workflow.actions?.length || 0} action(s)</span>
                     </div>
                   </div>
                 </CardContent>
@@ -229,15 +271,15 @@ const Workflows = () => {
           </div>
         )}
 
-        <div className="mt-8">
+        <div className="mt-8 animate-fade-in-up" style={{ animationDelay: "200ms" }}>
           <ExecutionHistory />
         </div>
       </div>
 
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto animate-scale-in">
           <DialogHeader>
-            <DialogTitle>Create Workflow</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">Create Workflow</DialogTitle>
           </DialogHeader>
           <WorkflowForm
             onSuccess={() => {
@@ -250,9 +292,9 @@ const Workflows = () => {
       </Dialog>
 
       <Dialog open={!!editingWorkflow} onOpenChange={() => setEditingWorkflow(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto animate-scale-in">
           <DialogHeader>
-            <DialogTitle>Edit Workflow</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">Edit Workflow</DialogTitle>
           </DialogHeader>
           {editingWorkflow && (
             <WorkflowForm
