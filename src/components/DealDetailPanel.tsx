@@ -5,6 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DealForm } from "./forms/DealForm";
+import { ActivityForm } from "./forms/ActivityForm";
 import { 
   X, 
   DollarSign, 
@@ -15,7 +18,8 @@ import {
   Send,
   FileText,
   CheckSquare,
-  ExternalLink
+  ExternalLink,
+  Activity
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,11 +55,22 @@ interface Task {
   due_date: string | null;
 }
 
+interface ActivityLog {
+  id: string;
+  activity_type: string;
+  subject: string;
+  description: string | null;
+  activity_date: string;
+}
+
 const DealDetailPanel = ({ dealId, onClose }: DealDetailPanelProps) => {
   const [deal, setDeal] = useState<Deal | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [newNote, setNewNote] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showActivityDialog, setShowActivityDialog] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -90,7 +105,40 @@ const DealDetailPanel = ({ dealId, onClose }: DealDetailPanelProps) => {
       .order('created_at', { ascending: false });
 
     setTasks(taskData || []);
+
+    const { data: activityData } = await supabase
+      .from('activities')
+      .select('*')
+      .eq('deal_id', dealId)
+      .order('activity_date', { ascending: false });
+
+    setActivities(activityData || []);
     setLoading(false);
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this deal?')) return;
+
+    const { error } = await supabase
+      .from('deals')
+      .delete()
+      .eq('id', dealId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete deal",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Deal deleted successfully",
+    });
+    
+    onClose();
   };
 
   const handleSaveNote = async () => {
@@ -157,13 +205,10 @@ const DealDetailPanel = ({ dealId, onClose }: DealDetailPanelProps) => {
             )}
           </div>
           <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <ExternalLink className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowEditDialog(true)}>
               <Edit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDelete}>
               <Trash2 className="h-4 w-4" />
             </Button>
             <Button 
@@ -197,6 +242,16 @@ const DealDetailPanel = ({ dealId, onClose }: DealDetailPanelProps) => {
             <span>Close: {new Date(deal.expected_close_date).toLocaleDateString()}</span>
           </div>
         )}
+
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full"
+          onClick={() => setShowActivityDialog(true)}
+        >
+          <Activity className="mr-2 h-4 w-4" />
+          Log Activity
+        </Button>
       </div>
 
       <ScrollArea className="flex-1">
@@ -235,6 +290,38 @@ const DealDetailPanel = ({ dealId, onClose }: DealDetailPanelProps) => {
 
           <div>
             <div className="flex items-center space-x-2 mb-3">
+              <Activity className="h-4 w-4 text-primary" />
+              <h3 className="font-semibold">Activities</h3>
+            </div>
+            {activities.length === 0 ? (
+              <Card className="p-8 text-center">
+                <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No activities logged</p>
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {activities.map((activity) => (
+                  <Card key={activity.id} className="p-3">
+                    <div className="flex items-start justify-between mb-1">
+                      <p className="text-sm font-medium">{activity.subject}</p>
+                      <Badge variant="secondary" className="text-xs">
+                        {activity.activity_type}
+                      </Badge>
+                    </div>
+                    {activity.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">{activity.description}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {new Date(activity.activity_date).toLocaleDateString()}
+                    </p>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="flex items-center space-x-2 mb-3">
               <FileText className="h-4 w-4 text-primary" />
               <h3 className="font-semibold">Notes</h3>
             </div>
@@ -263,6 +350,38 @@ const DealDetailPanel = ({ dealId, onClose }: DealDetailPanelProps) => {
           </div>
         </div>
       </ScrollArea>
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Deal</DialogTitle>
+          </DialogHeader>
+          <DealForm
+            dealId={dealId}
+            onSuccess={() => {
+              setShowEditDialog(false);
+              fetchDealDetails();
+            }}
+            onCancel={() => setShowEditDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showActivityDialog} onOpenChange={setShowActivityDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Log Activity</DialogTitle>
+          </DialogHeader>
+          <ActivityForm
+            dealId={dealId}
+            onSuccess={() => {
+              setShowActivityDialog(false);
+              fetchDealDetails();
+            }}
+            onCancel={() => setShowActivityDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </aside>
   );
 };

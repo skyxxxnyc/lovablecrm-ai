@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   X, 
   Globe, 
@@ -55,6 +58,14 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
   const [deals, setDeals] = useState<Deal[]>([]);
   const [newNote, setNewNote] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    industry: "",
+    website: "",
+    phone: "",
+    address: "",
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -81,6 +92,14 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
     }
 
     setCompany(companyData);
+
+    setEditForm({
+      name: companyData.name || "",
+      industry: companyData.industry || "",
+      website: companyData.website || "",
+      phone: companyData.phone || "",
+      address: companyData.address || "",
+    });
 
     const { data: contactData } = await supabase
       .from('contacts')
@@ -128,6 +147,55 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
     setNewNote("");
   };
 
+  const handleEdit = async () => {
+    const { error } = await supabase
+      .from('companies')
+      .update(editForm)
+      .eq('id', companyId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update company",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Company updated successfully",
+    });
+
+    setShowEditDialog(false);
+    fetchCompanyDetails();
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this company?')) return;
+
+    const { error } = await supabase
+      .from('companies')
+      .delete()
+      .eq('id', companyId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete company",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Company deleted successfully",
+    });
+    
+    onClose();
+  };
+
   if (loading || !company) {
     return (
       <aside className="w-96 border-l border-border bg-card flex items-center justify-center">
@@ -147,13 +215,10 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
             )}
           </div>
           <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <ExternalLink className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowEditDialog(true)}>
               <Edit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDelete}>
               <Trash2 className="h-4 w-4" />
             </Button>
             <Button 
@@ -286,6 +351,64 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
           </div>
         </div>
       </ScrollArea>
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Company</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Company Name *</Label>
+              <Input
+                id="name"
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="industry">Industry</Label>
+              <Input
+                id="industry"
+                value={editForm.industry}
+                onChange={(e) => setEditForm({ ...editForm, industry: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                value={editForm.website}
+                onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                value={editForm.phone}
+                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                value={editForm.address}
+                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleEdit}>
+                Update Company
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </aside>
   );
 };
