@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, Plus, Trash2, Download, Upload, Star, Copy, Sparkles, Edit } from "lucide-react";
+import { BookOpen, Plus, Trash2, Download, Upload, Star, Copy, Sparkles, Edit, LayoutList, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface Prompt {
   id: string;
@@ -28,6 +29,7 @@ const PromptLibrary = () => {
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'gallery'>('list');
   const [formData, setFormData] = useState({ title: '', content: '', category: '', tags: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
@@ -384,14 +386,24 @@ const PromptLibrary = () => {
           </div>
         </div>
 
-        <Input
-          placeholder="Search prompts..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-6"
-        />
+        <div className="flex items-center gap-4 mb-6">
+          <Input
+            placeholder="Search prompts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1"
+          />
+          <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as 'list' | 'gallery')}>
+            <ToggleGroupItem value="list" aria-label="List view">
+              <LayoutList className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="gallery" aria-label="Gallery view">
+              <LayoutGrid className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
 
-        <div className="grid gap-4">
+        <div className={viewMode === 'gallery' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'grid gap-4'}>
           {filteredPrompts.length === 0 ? (
             <Card className="p-8 text-center">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -400,61 +412,103 @@ const PromptLibrary = () => {
           ) : (
             filteredPrompts.map((prompt) => (
               <Card key={prompt.id} className="cursor-pointer hover:border-primary transition-colors" onClick={() => handlePromptClick(prompt)}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="flex items-center gap-2">
-                        {prompt.title}
-                        {prompt.is_favorite && <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />}
-                      </CardTitle>
-                      {prompt.category && (
-                        <Badge variant="outline" className="mt-2">{prompt.category}</Badge>
+                {viewMode === 'gallery' ? (
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm truncate flex items-center gap-2">
+                          {prompt.title}
+                          {prompt.is_favorite && <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 flex-shrink-0" />}
+                        </h3>
+                        {prompt.category && (
+                          <Badge variant="outline" className="mt-1 text-xs">{prompt.category}</Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 ml-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleFavorite(prompt);
+                          }}
+                        >
+                          <Star className={`h-3 w-3 ${prompt.is_favorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-3 mb-3">{prompt.content}</p>
+                    {prompt.tags && prompt.tags.length > 0 && (
+                      <div className="flex gap-1 flex-wrap">
+                        {prompt.tags.slice(0, 3).map((tag, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs">{tag}</Badge>
+                        ))}
+                        {prompt.tags.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">+{prompt.tags.length - 3}</Badge>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                ) : (
+                  <>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="flex items-center gap-2">
+                            {prompt.title}
+                            {prompt.is_favorite && <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />}
+                          </CardTitle>
+                          {prompt.category && (
+                            <Badge variant="outline" className="mt-2">{prompt.category}</Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleFavorite(prompt);
+                            }}
+                          >
+                            <Star className={`h-4 w-4 ${prompt.is_favorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopy(prompt.content);
+                            }}
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(prompt.id);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{prompt.content}</p>
+                      {prompt.tags && prompt.tags.length > 0 && (
+                        <div className="flex gap-2 mt-4">
+                          {prompt.tags.map((tag, i) => (
+                            <Badge key={i} variant="secondary">{tag}</Badge>
+                          ))}
+                        </div>
                       )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleFavorite(prompt);
-                        }}
-                      >
-                        <Star className={`h-4 w-4 ${prompt.is_favorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCopy(prompt.content);
-                        }}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(prompt.id);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground line-clamp-2">{prompt.content}</p>
-                  {prompt.tags && prompt.tags.length > 0 && (
-                    <div className="flex gap-2 mt-4">
-                      {prompt.tags.map((tag, i) => (
-                        <Badge key={i} variant="secondary">{tag}</Badge>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
+                    </CardContent>
+                  </>
+                )}
               </Card>
             ))
           )}
