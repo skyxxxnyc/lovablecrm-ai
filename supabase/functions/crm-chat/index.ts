@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,6 +15,31 @@ serve(async (req) => {
   try {
     const { messages, userId } = await req.json();
     
+    // Create Supabase client for database operations
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Get the last user message to detect intent
+    const lastUserMessage = messages.filter((m: any) => m.role === 'user').pop()?.content || '';
+    
+    // Detect intent and perform database operations
+    const intentResult = await detectIntentAndExecute(lastUserMessage, userId, supabase);
+    
+    if (intentResult.data) {
+      // Return structured data immediately
+      return new Response(
+        JSON.stringify({ 
+          type: intentResult.type,
+          data: intentResult.data,
+          message: intentResult.message 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
@@ -21,27 +47,13 @@ serve(async (req) => {
 
     // System prompt for CRM AI assistant
     const systemPrompt = `You are an intelligent CRM assistant helping users manage their business relationships. 
-
-Your role:
-- Help users create and manage contacts, companies, deals, tasks, and activities
-- Extract relevant information from natural conversation
-- Be conversational, professional, and helpful
-- Guide users through CRM operations step by step
-
-When users want to create or update CRM data:
-1. Acknowledge their request
-2. Extract available information
-3. Ask for any missing required fields naturally
-4. Confirm actions clearly
-
-Available CRM entities:
-- Contacts: first name, last name, email, phone, position, company, notes
-- Companies: name, industry, website, phone, address, notes  
-- Deals: title, stage, amount, probability, expected close date, notes
-- Tasks: title, description, priority (low/medium/high), due date, status
-- Activities: type (call/meeting/email), subject, description, date
-
-Keep responses concise and actionable. Focus on helping users be productive.`;
+Keep responses concise and conversational. Focus on being helpful and professional.`;
+    
+    // Add context about any data operations that were performed
+    let contextMessage = '';
+    if (intentResult.message) {
+      contextMessage = `\n\nContext: ${intentResult.message}`;
+    }
 
     // Call Lovable AI Gateway with streaming
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -50,15 +62,15 @@ Keep responses concise and actionable. Focus on helping users be productive.`;
         'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages
-        ],
-        stream: true,
-      }),
-    });
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: systemPrompt + contextMessage },
+            ...messages
+          ],
+          stream: true,
+        }),
+      });
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -102,3 +114,91 @@ Keep responses concise and actionable. Focus on helping users be productive.`;
     );
   }
 });
+
+// Intent detection and execution
+async function detectIntentAndExecute(message: string, userId: string, supabase: any) {
+  const lowerMsg = message.toLowerCase();
+  
+  // List contacts
+  if (lowerMsg.includes('show') && (lowerMsg.includes('contact') || lowerMsg.includes('people'))) {
+    const { data, error } = await supabase
+      .from('contacts')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching contacts:', error);
+      return { message: 'Error fetching contacts' };
+    }
+    
+    return { 
+      type: 'contacts_list', 
+      data, 
+      message: `Found ${data.length} contact${data.length !== 1 ? 's' : ''}`
+    };
+  }
+  
+  // List tasks
+  if (lowerMsg.includes('show') && lowerMsg.includes('task')) {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching tasks:', error);
+      return { message: 'Error fetching tasks' };
+    }
+    
+    return { 
+      type: 'tasks_list', 
+      data, 
+      message: `Found ${data.length} task${data.length !== 1 ? 's' : ''}`
+    };
+  }
+  
+  // List deals
+  if (lowerMsg.includes('show') && lowerMsg.includes('deal')) {
+    const { data, error } = await supabase
+      .from('deals')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching deals:', error);
+      return { message: 'Error fetching deals' };
+    }
+    
+    return { 
+      type: 'deals_list', 
+      data, 
+      message: `Found ${data.length} deal${data.length !== 1 ? 's' : ''}`
+    };
+  }
+  
+  // List companies
+  if (lowerMsg.includes('show') && (lowerMsg.includes('compan') || lowerMsg.includes('organization'))) {
+    const { data, error } = await supabase
+      .from('companies')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching companies:', error);
+      return { message: 'Error fetching companies' };
+    }
+    
+    return { 
+      type: 'companies_list', 
+      data, 
+      message: `Found ${data.length} ${data.length !== 1 ? 'companies' : 'company'}`
+    };
+  }
+  
+  // No specific intent detected - use conversational AI
+  return {};
+}

@@ -2,9 +2,11 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
-interface Message {
+export interface Message {
   role: 'user' | 'assistant';
   content: string;
+  type?: 'text' | 'contacts_list' | 'tasks_list' | 'deals_list' | 'companies_list';
+  data?: any[];
 }
 
 interface UseStreamingChatProps {
@@ -39,9 +41,29 @@ export const useStreamingChat = ({ user, onError }: UseStreamingChatProps) => {
         }
       );
 
-      if (!response.ok || !response.body) {
+      if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Failed to start stream');
+      }
+
+      const contentType = response.headers.get('content-type');
+      
+      // Check if response is structured data (JSON)
+      if (contentType?.includes('application/json')) {
+        const result = await response.json();
+        
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: result.message || 'Here are your results',
+          type: result.type,
+          data: result.data
+        }]);
+        return;
+      }
+
+      // Otherwise handle streaming response
+      if (!response.body) {
+        throw new Error('No response body');
       }
 
       const reader = response.body.getReader();

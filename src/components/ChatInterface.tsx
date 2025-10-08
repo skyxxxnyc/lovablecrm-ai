@@ -7,6 +7,10 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useStreamingChat } from "@/hooks/useStreamingChat";
+import { ContactCard } from "./chat/ContactCard";
+import { TaskCard } from "./chat/TaskCard";
+import { DealCard } from "./chat/DealCard";
+import { CompanyCard } from "./chat/CompanyCard";
 import { 
   Send, 
   Paperclip, 
@@ -26,19 +30,19 @@ interface ChatInterfaceProps {
 
 const promptSuggestions = [
   {
-    text: "Create a contact for Sarah Johnson at Tech Corp",
+    text: "Show me all my contacts",
     icon: FileText,
   },
   {
-    text: "Show me all my high priority tasks",
+    text: "Show me my tasks",
     icon: Mail,
   },
   {
-    text: "Add a follow-up task for John Smith tomorrow",
+    text: "Show me my deals",
     icon: FileText,
   },
   {
-    text: "What deals are in negotiation stage?",
+    text: "Show me my companies",
     icon: Sparkles,
   },
 ];
@@ -140,19 +144,57 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
           ) : (
             <div className="space-y-6 py-8">
               {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                >
+                <div key={index} className="space-y-4">
                   <div
-                    className={`max-w-[70%] rounded-2xl px-4 py-3 ${
-                      message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-card border border-border"
-                    }`}
+                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    <div
+                      className={`max-w-[70%] rounded-2xl px-4 py-3 ${
+                        message.role === "user"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-card border border-border"
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    </div>
                   </div>
+                  
+                  {/* Render structured data */}
+                  {message.type === 'contacts_list' && message.data && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {message.data.map((contact: any) => (
+                        <ContactCard 
+                          key={contact.id} 
+                          contact={contact}
+                          onSelect={onContactCreated}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  
+                  {message.type === 'tasks_list' && message.data && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {message.data.map((task: any) => (
+                        <TaskCard key={task.id} task={task} />
+                      ))}
+                    </div>
+                  )}
+                  
+                  {message.type === 'deals_list' && message.data && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {message.data.map((deal: any) => (
+                        <DealCard key={deal.id} deal={deal} />
+                      ))}
+                    </div>
+                  )}
+                  
+                  {message.type === 'companies_list' && message.data && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {message.data.map((company: any) => (
+                        <CompanyCard key={company.id} company={company} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
               {isLoading && (
