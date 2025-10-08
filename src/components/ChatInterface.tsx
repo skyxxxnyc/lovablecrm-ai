@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useStreamingChat } from "@/hooks/useStreamingChat";
+import { useVoiceInput } from "@/hooks/useVoiceInput";
+import { SmartSuggestions } from "./chat/SmartSuggestions";
 import { ContactCard } from "./chat/ContactCard";
 import { TaskCard } from "./chat/TaskCard";
 import { DealCard } from "./chat/DealCard";
@@ -19,7 +21,9 @@ import {
   RefreshCw,
   Mail,
   FileText,
-  Sparkles
+  Sparkles,
+  Mic,
+  MicOff
 } from "lucide-react";
 import { useState } from "react";
 
@@ -64,6 +68,8 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
     },
   });
 
+  const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceInput();
+
   useEffect(() => {
     const fetchProfile = async () => {
       const { data } = await supabase
@@ -104,6 +110,25 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
     }
   };
 
+  const handleVoiceInput = async () => {
+    if (isRecording) {
+      const text = await stopRecording();
+      if (text) {
+        setInput(text);
+        toast({
+          title: "Transcription Complete",
+          description: "Voice input transcribed successfully",
+        });
+      }
+    } else {
+      await startRecording();
+      toast({
+        title: "Recording",
+        description: "Speak now...",
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-[hsl(var(--chat-bg))]">
       {/* Messages */}
@@ -122,6 +147,13 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
                   Use one of the most common prompts below or use your own to begin
                 </p>
               </div>
+
+              {user && (
+                <SmartSuggestions 
+                  userId={user.id} 
+                  onSuggestionClick={(text) => handleSend(text)}
+                />
+              )}
 
               <div className="grid grid-cols-4 gap-3 mb-8">
                 {promptSuggestions.map((suggestion, index) => (
@@ -222,8 +254,18 @@ const ChatInterface = ({ user, onContactCreated }: ChatInterfaceProps) => {
               rows={1}
             />
             <div className="absolute bottom-3 left-4 flex items-center space-x-2">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                <Paperclip className="h-4 w-4" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                onClick={handleVoiceInput}
+                disabled={isProcessing}
+              >
+                {isRecording ? (
+                  <MicOff className="h-4 w-4 text-red-500 animate-pulse" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                 <ImageIcon className="h-4 w-4" />

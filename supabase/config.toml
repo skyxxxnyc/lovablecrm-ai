@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.enhance-prompt]
 verify_jwt = true
+
+[functions.voice-to-text]
+verify_jwt = false
+
+[functions.execute-automation-rules]
+verify_jwt = false

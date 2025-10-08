@@ -15,19 +15,16 @@ serve(async (req) => {
   try {
     const { messages, userId } = await req.json();
     
-    // Create Supabase client for database operations
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Get the last user message to detect intent
     const lastUserMessage = messages.filter((m: any) => m.role === 'user').pop()?.content || '';
     
-    // Detect intent and perform database operations
+    // Check for structured data queries
     const intentResult = await detectIntentAndExecute(lastUserMessage, userId, supabase);
     
     if (intentResult.data) {
-      // Return structured data immediately
       return new Response(
         JSON.stringify({ 
           type: intentResult.type,
@@ -45,32 +42,105 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    // System prompt for CRM AI assistant
-    const systemPrompt = `You are an intelligent CRM assistant helping users manage their business relationships. 
-Keep responses concise and conversational. Focus on being helpful and professional.`;
-    
-    // Add context about any data operations that were performed
-    let contextMessage = '';
-    if (intentResult.message) {
-      contextMessage = `\n\nContext: ${intentResult.message}`;
-    }
+    // Get smart suggestions for context
+    const { data: suggestions } = await supabase
+      .from('chat_suggestions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('dismissed', false)
+      .order('priority', { ascending: false })
+      .limit(3);
 
-    // Call Lovable AI Gateway with streaming
+    const suggestionsContext = suggestions && suggestions.length > 0 
+      ? `\n\nCurrent priority items:\n${suggestions.map((s: any) => `- ${s.title}: ${s.description}`).join('\n')}`
+      : '';
+
+    const systemPrompt = `You are a helpful CRM assistant. You help users manage their contacts, deals, tasks, and activities.
+    
+You have access to tools to create and update CRM records. Use them when the user asks to create or update data.
+
+You can help with:
+- Creating and updating contacts, deals, companies, and tasks
+- Finding and organizing information
+- Managing sales pipeline
+- Providing insights and suggestions
+${suggestionsContext}
+
+Be concise, helpful, and proactive in suggesting actions.`;
+
+    // Define tools for function calling
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "create_contact",
+          description: "Create a new contact in the CRM",
+          parameters: {
+            type: "object",
+            properties: {
+              first_name: { type: "string" },
+              last_name: { type: "string" },
+              email: { type: "string" },
+              phone: { type: "string" },
+              position: { type: "string" },
+              notes: { type: "string" }
+            },
+            required: ["first_name", "last_name"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "create_deal",
+          description: "Create a new deal in the CRM",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              amount: { type: "number" },
+              stage: { type: "string", enum: ["lead", "qualified", "proposal", "negotiation", "won", "lost"] },
+              notes: { type: "string" }
+            },
+            required: ["title"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "create_task",
+          description: "Create a new task",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              description: { type: "string" },
+              priority: { type: "string", enum: ["low", "medium", "high"] },
+              due_date: { type: "string" }
+            },
+            required: ["title"]
+          }
+        }
+      }
+    ];
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: [
-            { role: 'system', content: systemPrompt + contextMessage },
-            ...messages
-          ],
-          stream: true,
-        }),
-      });
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages
+        ],
+        tools,
+        stream: true,
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -93,7 +163,6 @@ Keep responses concise and conversational. Focus on being helpful and profession
       throw new Error('AI gateway error');
     }
 
-    // Return the streaming response directly to the client
     return new Response(response.body, {
       headers: {
         ...corsHeaders,
@@ -115,11 +184,9 @@ Keep responses concise and conversational. Focus on being helpful and profession
   }
 });
 
-// Intent detection and execution
 async function detectIntentAndExecute(message: string, userId: string, supabase: any) {
   const lowerMsg = message.toLowerCase();
   
-  // List contacts
   if (lowerMsg.includes('show') && (lowerMsg.includes('contact') || lowerMsg.includes('people'))) {
     const { data, error } = await supabase
       .from('contacts')
@@ -139,7 +206,6 @@ async function detectIntentAndExecute(message: string, userId: string, supabase:
     };
   }
   
-  // List tasks
   if (lowerMsg.includes('show') && lowerMsg.includes('task')) {
     const { data, error } = await supabase
       .from('tasks')
@@ -159,7 +225,6 @@ async function detectIntentAndExecute(message: string, userId: string, supabase:
     };
   }
   
-  // List deals
   if (lowerMsg.includes('show') && lowerMsg.includes('deal')) {
     const { data, error } = await supabase
       .from('deals')
@@ -179,7 +244,6 @@ async function detectIntentAndExecute(message: string, userId: string, supabase:
     };
   }
   
-  // List companies
   if (lowerMsg.includes('show') && (lowerMsg.includes('compan') || lowerMsg.includes('organization'))) {
     const { data, error } = await supabase
       .from('companies')
@@ -199,6 +263,5 @@ async function detectIntentAndExecute(message: string, userId: string, supabase:
     };
   }
   
-  // No specific intent detected - use conversational AI
   return {};
 }

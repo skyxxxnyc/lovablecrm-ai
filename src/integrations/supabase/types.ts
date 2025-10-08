@@ -65,6 +65,122 @@ export type Database = {
           },
         ]
       }
+      activity_timeline: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          description: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          description?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          description?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      attachments: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          file_name: string
+          file_size: number
+          file_type: string
+          id: string
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          file_name: string
+          file_size: number
+          file_type: string
+          id?: string
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      automation_execution_logs: {
+        Row: {
+          actions_performed: Json | null
+          automation_rule_id: string
+          created_at: string | null
+          error_message: string | null
+          executed_at: string | null
+          id: string
+          status: string
+          trigger_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          actions_performed?: Json | null
+          automation_rule_id: string
+          created_at?: string | null
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          status: string
+          trigger_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          actions_performed?: Json | null
+          automation_rule_id?: string
+          created_at?: string | null
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          status?: string
+          trigger_data?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_execution_logs_automation_rule_id_fkey"
+            columns: ["automation_rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_rules: {
         Row: {
           action_config: Json
@@ -172,6 +288,45 @@ export type Database = {
           start_time?: string
           title?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_suggestions: {
+        Row: {
+          created_at: string | null
+          description: string
+          dismissed: boolean | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          priority: string | null
+          suggestion_type: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          dismissed?: boolean | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          priority?: string | null
+          suggestion_type: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          dismissed?: boolean | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          priority?: string | null
+          suggestion_type?: string
+          title?: string
           user_id?: string
         }
         Relationships: []
@@ -912,7 +1067,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_smart_suggestions: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
