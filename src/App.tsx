@@ -22,6 +22,7 @@ import CompanyDetail from "./pages/CompanyDetail";
 import Deals from "./pages/Deals";
 import DealDetail from "./pages/DealDetail";
 import Settings from "./pages/Settings";
+import Billing from "./pages/Billing";
 import NotFound from "./pages/NotFound";
 import { FloatingChatButton } from "./components/FloatingChatButton";
 
@@ -53,6 +54,7 @@ const App = () => (
           <Route path="/deals" element={<Deals />} />
           <Route path="/deals/:id" element={<DealDetail />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/billing" element={<Billing />} />
           <Route path="/book/:slug" element={<BookMeeting />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

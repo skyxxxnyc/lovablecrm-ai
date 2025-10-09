@@ -8,8 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Settings as SettingsIcon, User, Bell, Shield, Key } from "lucide-react";
+import { Settings as SettingsIcon, User, Bell, Shield, Key, CreditCard } from "lucide-react";
 import { z } from "zod";
 import { AppLayout } from "@/components/AppLayout";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -224,7 +225,7 @@ export default function Settings() {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Profile
@@ -232,6 +233,10 @@ export default function Settings() {
             <TabsTrigger value="preferences" className="flex items-center gap-2">
               <Bell className="h-4 w-4" />
               Preferences
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Billing
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
@@ -314,6 +319,66 @@ export default function Settings() {
                 <Button onClick={handleSavePreferences} disabled={saving}>
                   {saving ? "Saving..." : "Save Preferences"}
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="billing" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Subscription & Billing</CardTitle>
+                <CardDescription>
+                  Manage your subscription plan and payment methods
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-muted rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="font-semibold">Current Plan</p>
+                      <p className="text-sm text-muted-foreground">Free Trial</p>
+                    </div>
+                    <Badge variant="outline">Active</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    You are currently on the free trial plan
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <Label>Payment Method</Label>
+                  <div className="p-4 bg-muted rounded-lg text-sm text-muted-foreground">
+                    No payment method added
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="flex gap-2">
+                  <Button onClick={() => window.location.href = '/billing'}>
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    View All Plans
+                  </Button>
+                  <Button variant="outline">
+                    Manage Subscription
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Billing History</CardTitle>
+                <CardDescription>
+                  View your past invoices and transactions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  No billing history available
+                </p>
               </CardContent>
             </Card>
           </TabsContent>

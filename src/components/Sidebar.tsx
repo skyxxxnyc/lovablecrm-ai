@@ -25,7 +25,8 @@ import {
   BarChart3,
   FileText,
   Sliders,
-  Database
+  Database,
+  CreditCard
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
@@ -247,6 +248,11 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
           icon={BookOpen} 
           label="Prompt Library" 
           onClick={() => navigate('/prompts')} 
+        />
+        <NavButton 
+          icon={CreditCard} 
+          label="Billing" 
+          onClick={() => navigate('/billing')} 
         />
       </div>
 

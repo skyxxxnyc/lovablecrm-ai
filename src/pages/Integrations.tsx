@@ -7,16 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Webhook, Zap, Trash2, Plus, Settings } from "lucide-react";
+import { Mail, Webhook, Zap, Trash2, Plus, Settings, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { AppLayout } from "@/components/AppLayout";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 interface Integration {
   id: string;
@@ -214,6 +208,14 @@ const Integrations = () => {
 
   const integrationTypes = [
     {
+      type: 'stripe',
+      icon: CreditCard,
+      title: 'Stripe',
+      description: 'Accept payments and manage subscriptions',
+      isConnected: true,
+      fields: []
+    },
+    {
       type: 'google_calendar',
       icon: Settings,
       title: 'Google Calendar',
@@ -266,19 +268,10 @@ const Integrations = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-7xl mx-auto">
-        <Breadcrumb className="mb-4">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Integrations</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+    <AppLayout>
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <Breadcrumbs items={[{ label: "Integrations" }]} />
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">Integrations</h1>
@@ -294,11 +287,18 @@ const Integrations = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {integrationTypes.map((integration) => {
             const Icon = integration.icon;
+            const isStripe = integration.type === 'stripe';
             return (
               <Card 
                 key={integration.type}
-                className="cursor-pointer hover:border-primary transition-colors"
+                className={`cursor-pointer transition-colors ${
+                  isStripe ? 'border-primary' : 'hover:border-primary'
+                }`}
                 onClick={() => {
+                  if (isStripe) {
+                    navigate('/billing');
+                    return;
+                  }
                   setSelectedType(integration.type);
                   if (integration.isOAuth) {
                     handleAddIntegration({ preventDefault: () => {} } as React.FormEvent);
@@ -315,9 +315,21 @@ const Integrations = () => {
                   <CardDescription>{integration.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button variant="outline" className="w-full">
-                    <Plus className="mr-2 h-4 w-4" />
-                    {integration.isOAuth ? 'Connect' : 'Add Integration'}
+                  <Button 
+                    variant={isStripe ? "default" : "outline"} 
+                    className="w-full"
+                  >
+                    {isStripe ? (
+                      <>
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Connected
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="mr-2 h-4 w-4" />
+                        {integration.isOAuth ? 'Connect' : 'Add Integration'}
+                      </>
+                    )}
                   </Button>
                 </CardContent>
               </Card>
@@ -415,7 +427,8 @@ const Integrations = () => {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </AppLayout>
   );
 };
 
