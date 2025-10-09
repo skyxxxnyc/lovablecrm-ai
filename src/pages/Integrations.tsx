@@ -38,7 +38,56 @@ const Integrations = () => {
   useEffect(() => {
     checkAuth();
     fetchIntegrations();
+    
+    // Handle OAuth callback
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code) {
+      handleOAuthCallback(code);
+    }
   }, []);
+
+  const handleOAuthCallback = async (code: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Error",
+          description: "Please sign in",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const redirectUri = `${window.location.origin}/integrations`;
+
+      const { error } = await supabase.functions.invoke('oauth-google-calendar', {
+        body: { code, redirect_uri: redirectUri },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Google Calendar connected successfully!",
+      });
+      
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      fetchIntegrations();
+    } catch (error: any) {
+      console.error('OAuth callback error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to connect Google Calendar",
+        variant: "destructive",
+      });
+    }
+  };
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -67,26 +116,34 @@ const Integrations = () => {
   const handleAddIntegration = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Error",
+          description: "Please sign in to add integrations",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    const { error } = await supabase
-      .from('integrations')
-      .insert({
-        user_id: user.id,
-        integration_type: selectedType,
-        name: formData.name,
-        config: formData.config,
-        is_active: true
-      });
+      // Handle Google Calendar OAuth separately
+      if (selectedType === 'google_calendar') {
+        handleGoogleCalendarAuth();
+        return;
+      }
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add integration",
-        variant: "destructive",
-      });
-    } else {
+      const { error } = await supabase
+        .from('integrations')
+        .insert({
+          user_id: session.user.id,
+          integration_type: selectedType,
+          name: formData.name,
+          config: formData.config,
+        });
+
+      if (error) throw error;
+
       toast({
         title: "Success",
         description: "Integration added successfully",
@@ -94,7 +151,42 @@ const Integrations = () => {
       setShowAddDialog(false);
       setFormData({ name: '', config: {} });
       fetchIntegrations();
+    } catch (error: any) {
+      console.error('Error adding integration:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add integration",
+        variant: "destructive",
+      });
     }
+  };
+
+  const handleGoogleCalendarAuth = () => {
+    const clientId = prompt('Please enter your Google Client ID:');
+    if (!clientId) {
+      toast({
+        title: "Error",
+        description: "Google Client ID is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const redirectUri = `${window.location.origin}/integrations`;
+    const scope = 'https://www.googleapis.com/auth/calendar';
+    
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${encodeURIComponent(clientId)}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&response_type=code` +
+      `&scope=${encodeURIComponent(scope)}` +
+      `&access_type=offline` +
+      `&prompt=consent`;
+
+    // Store client ID for later use
+    localStorage.setItem('google_client_id', clientId);
+    
+    window.location.href = authUrl;
   };
 
   const handleDelete = async (id: string) => {
@@ -121,6 +213,14 @@ const Integrations = () => {
   };
 
   const integrationTypes = [
+    {
+      type: 'google_calendar',
+      icon: Settings,
+      title: 'Google Calendar',
+      description: 'Sync events with Google Calendar',
+      isOAuth: true,
+      fields: []
+    },
     {
       type: 'lindy',
       icon: Zap,
@@ -200,7 +300,11 @@ const Integrations = () => {
                 className="cursor-pointer hover:border-primary transition-colors"
                 onClick={() => {
                   setSelectedType(integration.type);
-                  setShowAddDialog(true);
+                  if (integration.isOAuth) {
+                    handleAddIntegration({ preventDefault: () => {} } as React.FormEvent);
+                  } else {
+                    setShowAddDialog(true);
+                  }
                 }}
               >
                 <CardHeader>
@@ -213,7 +317,7 @@ const Integrations = () => {
                 <CardContent>
                   <Button variant="outline" className="w-full">
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Integration
+                    {integration.isOAuth ? 'Connect' : 'Add Integration'}
                   </Button>
                 </CardContent>
               </Card>

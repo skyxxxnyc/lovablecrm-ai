@@ -13,6 +13,7 @@ import { ActivityFeed } from "@/components/ActivityFeed";
 import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
+import { CalendarView } from "@/components/calendar/CalendarView";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Activity, X } from "lucide-react";
@@ -97,6 +98,7 @@ const Dashboard = () => {
                 <TabsList>
                   <TabsTrigger value="chat">AI Chat</TabsTrigger>
                   <TabsTrigger value="metrics">Metrics</TabsTrigger>
+                  <TabsTrigger value="calendar">Calendar</TabsTrigger>
                   <TabsTrigger value="activity">Activity</TabsTrigger>
                 </TabsList>
                 
@@ -127,6 +129,10 @@ const Dashboard = () => {
                   <DashboardMetrics />
                   <DashboardCharts />
                 </div>
+              </TabsContent>
+              
+              <TabsContent value="calendar" className="flex-1 overflow-auto p-6 m-0">
+                <CalendarView />
               </TabsContent>
               
               <TabsContent value="activity" className="flex-1 overflow-auto p-6 m-0">

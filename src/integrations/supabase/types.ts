@@ -257,11 +257,14 @@ export type Database = {
         Row: {
           created_at: string | null
           end_time: string
+          google_calendar_id: string | null
           google_event_id: string | null
           id: string
+          last_synced_at: string | null
           location: string | null
           meeting_notes: string | null
           start_time: string
+          sync_status: string | null
           title: string
           updated_at: string | null
           user_id: string
@@ -269,11 +272,14 @@ export type Database = {
         Insert: {
           created_at?: string | null
           end_time: string
+          google_calendar_id?: string | null
           google_event_id?: string | null
           id?: string
+          last_synced_at?: string | null
           location?: string | null
           meeting_notes?: string | null
           start_time: string
+          sync_status?: string | null
           title: string
           updated_at?: string | null
           user_id: string
@@ -281,11 +287,14 @@ export type Database = {
         Update: {
           created_at?: string | null
           end_time?: string
+          google_calendar_id?: string | null
           google_event_id?: string | null
           id?: string
+          last_synced_at?: string | null
           location?: string | null
           meeting_notes?: string | null
           start_time?: string
+          sync_status?: string | null
           title?: string
           updated_at?: string | null
           user_id?: string

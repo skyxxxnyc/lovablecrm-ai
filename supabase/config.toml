@@ -1,5 +1,14 @@
 project_id = "adevhdkpbelglaxfjvqr"
 
+[functions.oauth-google-calendar]
+verify_jwt = true
+
+[functions.sync-google-calendar]
+verify_jwt = true
+
+[functions.create-calendar-event]
+verify_jwt = true
+
 [functions.crm-chat]
 verify_jwt = false
 
