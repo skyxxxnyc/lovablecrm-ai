@@ -148,9 +148,7 @@ const ChatInterface = ({
                 <h1 className="text-5xl font-bold tracking-tight">
                   hi there, <span className="text-primary">{userName}</span>
                 </h1>
-                <p className="text-2xl font-bold text-[#b4b123]">
-                  today is thursday, october 9th
-                </p>
+                <p className="text-[#b4b123] text-left font-thin text-lg"> thursday, october 9th</p>
               </div>
               <h2 className="text-4xl font-bold tracking-tight">
                 What would you <span className="text-[#5856D6]">like to know?</span>
