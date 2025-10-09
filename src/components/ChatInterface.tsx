@@ -16,6 +16,7 @@ import { DealCard } from "./chat/DealCard";
 import { CompanyCard } from "./chat/CompanyCard";
 import { Send, Paperclip, Image as ImageIcon, Loader2, RefreshCw, Mail, FileText, Sparkles, Mic, MicOff, PhoneCall, PhoneOff } from "lucide-react";
 import { useState } from "react";
+import { format } from "date-fns";
 interface ChatInterfaceProps {
   user: User | null;
   onContactCreated?: (contactId: string) => void;
@@ -46,6 +47,7 @@ const ChatInterface = ({
   const [input, setInput] = useState("");
   const [userName, setUserName] = useState("there");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const currentDate = format(new Date(), "EEEE, MMMM do").toLowerCase();
   const {
     toast
   } = useToast();
@@ -148,7 +150,7 @@ const ChatInterface = ({
                 <h1 className="text-5xl font-bold tracking-tight">
                   hi there, <span className="text-primary">{userName}</span>
                 </h1>
-                <p className="text-[#b4b123] text-left font-thin text-lg"> thursday, october 9th</p>
+                <p className="text-[#b4b123] text-left font-thin text-lg">{currentDate}</p>
               </div>
               <h2 className="text-4xl font-bold tracking-tight">
                 what would you <span className="text-[#5856D6]">like to know?</span>
