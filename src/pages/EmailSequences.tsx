@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Plus, Trash2, Edit, Play, Pause, Users } from "lucide-react";
+import { Mail, Plus, Trash2, Edit, Play, Pause, Users, UserPlus } from "lucide-react";
+import { EnrollContactDialog } from "@/components/email-sequences/EnrollContactDialog";
+import { SequenceTimeline } from "@/components/email-sequences/SequenceTimeline";
 import { useNavigate } from "react-router-dom";
 import {
   Breadcrumb,
@@ -40,8 +42,10 @@ const EmailSequences = () => {
   const [sequences, setSequences] = useState<EmailSequence[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showStepsDialog, setShowStepsDialog] = useState(false);
+  const [showEnrollDialog, setShowEnrollDialog] = useState(false);
   const [selectedSequence, setSelectedSequence] = useState<EmailSequence | null>(null);
   const [steps, setSteps] = useState<SequenceStep[]>([]);
+  const [enrollmentCounts, setEnrollmentCounts] = useState<Record<string, number>>({});
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [stepForm, setStepForm] = useState({ 
     subject: '', 
@@ -56,6 +60,12 @@ const EmailSequences = () => {
     checkAuth();
     fetchSequences();
   }, []);
+
+  useEffect(() => {
+    if (sequences.length > 0) {
+      fetchEnrollmentCounts();
+    }
+  }, [sequences]);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -78,6 +88,22 @@ const EmailSequences = () => {
       });
     } else {
       setSequences(data || []);
+    }
+  };
+
+  const fetchEnrollmentCounts = async () => {
+    const { data } = await supabase
+      .from('sequence_enrollments')
+      .select('sequence_id, status');
+
+    if (data) {
+      const counts: Record<string, number> = {};
+      data.forEach(enrollment => {
+        if (enrollment.status === 'active' || enrollment.status === 'paused') {
+          counts[enrollment.sequence_id] = (counts[enrollment.sequence_id] || 0) + 1;
+        }
+      });
+      setEnrollmentCounts(counts);
     }
   };
 
@@ -209,6 +235,11 @@ const EmailSequences = () => {
     setShowStepsDialog(true);
   };
 
+  const openEnrollDialog = (sequence: EmailSequence) => {
+    setSelectedSequence(sequence);
+    setShowEnrollDialog(true);
+  };
+
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto">
@@ -247,7 +278,7 @@ const EmailSequences = () => {
               <Card key={sequence.id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex-1">
                       <CardTitle className="flex items-center gap-3">
                         <Mail className="h-5 w-5" />
                         {sequence.name}
@@ -255,9 +286,24 @@ const EmailSequences = () => {
                           {sequence.is_active ? 'Active' : 'Paused'}
                         </Badge>
                       </CardTitle>
-                      <CardDescription>{sequence.description}</CardDescription>
+                      <CardDescription className="flex items-center gap-4 mt-1">
+                        <span>{sequence.description}</span>
+                        {enrollmentCounts[sequence.id] > 0 && (
+                          <Badge variant="outline" className="gap-1">
+                            <Users className="h-3 w-3" />
+                            {enrollmentCounts[sequence.id]} enrolled
+                          </Badge>
+                        )}
+                      </CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => openEnrollDialog(sequence)}
+                      >
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Enroll Contacts
+                      </Button>
                       <Button
                         variant="outline"
                         size="icon"
@@ -333,21 +379,10 @@ const EmailSequences = () => {
           </DialogHeader>
           
           <div className="space-y-6">
-            {/* Existing Steps */}
-            <div className="space-y-4">
-              {steps.map((step, index) => (
-                <Card key={step.id}>
-                  <CardHeader>
-                    <CardTitle className="text-sm">
-                      Step {step.step_number} - Send after {step.delay_days}d {step.delay_hours}h
-                    </CardTitle>
-                    <CardDescription className="font-semibold">{step.subject}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{step.body}</p>
-                  </CardContent>
-                </Card>
-              ))}
+            {/* Visual Timeline */}
+            <div>
+              <h3 className="font-semibold mb-4">Sequence Timeline</h3>
+              <SequenceTimeline steps={steps} />
             </div>
 
             {/* Add New Step Form */}
@@ -409,6 +444,21 @@ const EmailSequences = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Enroll Contacts Dialog */}
+      {selectedSequence && (
+        <EnrollContactDialog
+          open={showEnrollDialog}
+          onOpenChange={(open) => {
+            setShowEnrollDialog(open);
+            if (!open) {
+              fetchEnrollmentCounts();
+            }
+          }}
+          sequenceId={selectedSequence.id}
+          sequenceName={selectedSequence.name}
+        />
+      )}
     </div>
   );
 };

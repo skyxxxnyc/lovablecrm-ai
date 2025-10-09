@@ -20,3 +20,9 @@ verify_jwt = false
 
 [functions.gemini-chat]
 verify_jwt = false
+
+[functions.send-sequence-email]
+verify_jwt = true
+
+[functions.process-email-sequences]
+verify_jwt = false
