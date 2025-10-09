@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Check, CreditCard, Loader2, Settings } from "lucide-react";
+import { Check, CreditCard, Loader2, RefreshCw, Settings } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
@@ -63,6 +63,7 @@ export default function Billing() {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const { isPro, loading: subLoading, refreshSubscription } = useSubscription();
 
   useEffect(() => {
@@ -168,6 +169,16 @@ export default function Billing() {
     }
   };
 
+  const handleRefreshSubscription = async () => {
+    setRefreshing(true);
+    await refreshSubscription();
+    setRefreshing(false);
+    toast({
+      title: "Subscription Updated",
+      description: "Your subscription status has been refreshed.",
+    });
+  };
+
   if (loading || subLoading) {
     return (
       <AppLayout>
@@ -203,10 +214,14 @@ export default function Billing() {
           </div>
 
           {isPro && (
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-3">
               <Button onClick={handleManageSubscription} variant="outline">
                 <Settings className="h-4 w-4 mr-2" />
                 Manage Subscription
+              </Button>
+              <Button onClick={handleRefreshSubscription} variant="outline" disabled={refreshing}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh Status
               </Button>
             </div>
           )}
