@@ -195,7 +195,7 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
   }
 
   return (
-    <aside className="w-96 border-l border-border bg-card flex flex-col h-screen animate-slide-in-right">
+    <aside className="fixed md:relative inset-0 md:inset-auto md:w-96 border-l border-border bg-card flex flex-col h-screen animate-slide-in-right z-40 md:z-auto">
       <div className="p-6 border-b border-border">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
