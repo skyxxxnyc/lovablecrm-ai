@@ -6,9 +6,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { WorkflowForm } from "@/components/workflows/WorkflowForm";
+import { WorkflowTemplates, WorkflowTemplate } from "@/components/workflows/WorkflowTemplates";
 import { ExecutionHistory } from "@/components/workflows/ExecutionHistory";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Play, Settings, Trash2, Zap } from "lucide-react";
+import { Plus, Play, Settings, Trash2, Zap, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Breadcrumb,
@@ -33,7 +34,9 @@ interface Workflow {
 const Workflows = () => {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showTemplatesDialog, setShowTemplatesDialog] = useState(false);
   const [editingWorkflow, setEditingWorkflow] = useState<Workflow | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -113,6 +116,12 @@ const Workflows = () => {
     }
   };
 
+  const handleSelectTemplate = (template: WorkflowTemplate) => {
+    setSelectedTemplate(template);
+    setShowTemplatesDialog(false);
+    setShowCreateDialog(true);
+  };
+
   const getTriggerLabel = (triggerType: string) => {
     const labels: Record<string, string> = {
       contact_created: 'Contact Created',
@@ -159,7 +168,18 @@ const Workflows = () => {
               Integrations
             </Button>
             <Button 
-              onClick={() => setShowCreateDialog(true)}
+              variant="outline"
+              onClick={() => setShowTemplatesDialog(true)}
+              className="flex-1 md:flex-initial transition-all hover:border-primary hover:text-primary"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Templates
+            </Button>
+            <Button 
+              onClick={() => {
+                setSelectedTemplate(null);
+                setShowCreateDialog(true);
+              }}
               className="flex-1 md:flex-initial shadow-md hover:shadow-lg transition-all hover:scale-105"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -185,10 +205,26 @@ const Workflows = () => {
               <p className="text-muted-foreground mb-6">
                 Create your first automation workflow to save time and boost productivity
               </p>
-              <Button onClick={() => setShowCreateDialog(true)} className="shadow-md hover:shadow-lg transition-all">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Workflow
-              </Button>
+              <div className="flex gap-3 justify-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowTemplatesDialog(true)} 
+                  className="shadow-sm hover:shadow transition-all"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Browse Templates
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setSelectedTemplate(null);
+                    setShowCreateDialog(true);
+                  }} 
+                  className="shadow-md hover:shadow-lg transition-all"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Workflow
+                </Button>
+              </div>
             </div>
           </Card>
         ) : (
@@ -276,17 +312,41 @@ const Workflows = () => {
         </div>
       </div>
 
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+      <Dialog open={showTemplatesDialog} onOpenChange={setShowTemplatesDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto animate-scale-in">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Workflow Templates</DialogTitle>
+          </DialogHeader>
+          <WorkflowTemplates onSelectTemplate={handleSelectTemplate} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showCreateDialog} onOpenChange={(open) => {
+        setShowCreateDialog(open);
+        if (!open) setSelectedTemplate(null);
+      }}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto animate-scale-in">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Create Workflow</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">
+              {selectedTemplate ? `Create from Template: ${selectedTemplate.name}` : 'Create Workflow'}
+            </DialogTitle>
           </DialogHeader>
           <WorkflowForm
+            workflow={selectedTemplate ? {
+              name: selectedTemplate.name,
+              description: selectedTemplate.description,
+              trigger_type: selectedTemplate.trigger_type,
+              actions: selectedTemplate.actions
+            } : undefined}
             onSuccess={() => {
               setShowCreateDialog(false);
+              setSelectedTemplate(null);
               fetchWorkflows();
             }}
-            onCancel={() => setShowCreateDialog(false)}
+            onCancel={() => {
+              setShowCreateDialog(false);
+              setSelectedTemplate(null);
+            }}
           />
         </DialogContent>
       </Dialog>
