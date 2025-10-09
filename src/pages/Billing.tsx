@@ -21,49 +21,35 @@ interface Plan {
 
 const plans: Plan[] = [
   {
-    id: "starter",
-    name: "Starter",
-    description: "Perfect for small teams getting started",
-    price: 29,
+    id: "free",
+    name: "Free",
+    description: "Get started with essential CRM features",
+    price: 0,
     interval: "month",
     features: [
-      "Up to 1,000 contacts",
+      "Up to 100 contacts",
       "Basic CRM features",
       "Email integration",
       "Mobile app access",
-      "Email support",
+      "Community support",
     ],
   },
   {
-    id: "professional",
-    name: "Professional",
-    description: "For growing teams with advanced needs",
-    price: 79,
-    interval: "month",
+    id: "pro",
+    name: "Pro",
+    description: "Full-featured CRM for growing teams",
+    price: 24.99,
+    interval: "month per user",
     popular: true,
     features: [
-      "Up to 10,000 contacts",
+      "Unlimited contacts",
       "Advanced CRM features",
       "AI-powered insights",
       "Custom workflows",
       "Priority support",
       "Advanced analytics",
-    ],
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    description: "Custom solution for large organizations",
-    price: 199,
-    interval: "month",
-    features: [
-      "Unlimited contacts",
-      "Enterprise features",
-      "Dedicated account manager",
-      "Custom integrations",
-      "24/7 phone support",
-      "Advanced security",
-      "Custom SLA",
+      "Email sequences",
+      "Calendar integration",
     ],
   },
 ];
@@ -144,9 +130,15 @@ export default function Billing() {
             <p className="text-muted-foreground text-lg">
               Select the perfect plan for your business needs
             </p>
+            <Badge className="mt-2 bg-primary text-primary-foreground">
+              🎉 Pre-Launch Special: 50% OFF - Limited Time!
+            </Badge>
+            <p className="text-sm text-muted-foreground">
+              Regular price: $49.99/month per user
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {plans.map((plan) => (
               <Card
                 key={plan.id}
@@ -168,8 +160,19 @@ export default function Billing() {
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <CardDescription>{plan.description}</CardDescription>
                   <div className="mt-4">
-                    <span className="text-4xl font-bold">${plan.price}</span>
-                    <span className="text-muted-foreground">/{plan.interval}</span>
+                    {plan.price === 0 ? (
+                      <span className="text-4xl font-bold">Free</span>
+                    ) : (
+                      <>
+                        <span className="text-4xl font-bold">${plan.price}</span>
+                        <span className="text-muted-foreground">/{plan.interval}</span>
+                        <div className="mt-1">
+                          <span className="text-sm text-muted-foreground line-through">
+                            $49.99/month per user
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </CardHeader>
 
@@ -187,13 +190,15 @@ export default function Billing() {
                     className="w-full"
                     variant={plan.popular ? "default" : "outline"}
                     onClick={() => handleSubscribe(plan.id)}
-                    disabled={processingPlan === plan.id}
+                    disabled={processingPlan === plan.id || plan.id === "free"}
                   >
                     {processingPlan === plan.id ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         Processing...
                       </>
+                    ) : plan.id === "free" ? (
+                      "Current Plan"
                     ) : (
                       <>
                         <CreditCard className="h-4 w-4 mr-2" />
