@@ -161,9 +161,10 @@ const ChatInterface = ({
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-                {promptSuggestions.map((suggestion, index) => <Card key={index} onClick={() => handleSend(suggestion.text)} className="p-4 md:p-6 cursor-pointer hover:bg-secondary/50 transition-all border border-border aspect-square flex flex-col justify-between items-start min-h-[120px] md:min-h-0">
-                    <p className="text-sm leading-snug text-left">{suggestion.text}</p>
-                    <suggestion.icon className="h-5 w-5 text-muted-foreground mt-auto" />
+                {promptSuggestions.map((suggestion, index) => <Card key={index} onClick={() => handleSend(suggestion.text)} className="p-4 md:p-6 cursor-pointer hover:bg-secondary/50 transition-all border border-border aspect-square flex flex-col justify-between items-center min-h-[120px] md:min-h-0">
+                    <p className="text-sm leading-snug text-center">{suggestion.text}</p>
+                    <suggestion.icon className="h-12 w-12 text-muted-foreground" />
+                    <div></div>
                   </Card>)}
               </div>
 
