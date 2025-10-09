@@ -143,16 +143,18 @@ const ChatInterface = ({
             </div>}
 
           {messages.length === 0 && !voiceConversation.isActive ? <div className="flex flex-col justify-center min-h-[calc(100vh-300px)]">
-              <div className="text-left mb-12 space-y-3">
+            <div className="text-left mb-12 space-y-3">
+              <div className="flex items-baseline justify-between">
                 <h1 className="text-5xl font-bold tracking-tight">
                   hi there, <span className="text-primary">{userName}</span>
                 </h1>
-                <p className="text-right text-2xl font-bold text-[#b4b123]">
+                <p className="text-2xl font-bold text-[#b4b123]">
                   today is thursday, october 9th
                 </p>
-                <h2 className="text-4xl font-bold tracking-tight">
-                  What would you <span className="text-[#5856D6]">like to know?</span>
-                </h2>
+              </div>
+              <h2 className="text-4xl font-bold tracking-tight">
+                What would you <span className="text-[#5856D6]">like to know?</span>
+              </h2>
                 <p className="text-sm text-muted-foreground mt-4">
                   Use one of the most common prompts below or use your own to begin
                 </p>
