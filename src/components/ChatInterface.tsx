@@ -177,7 +177,7 @@ const ChatInterface = ({ user, onContactCreated, onContactSelect, onDealSelect, 
                   Hi there, <span className="text-primary">{userName}</span>
                 </h1>
                 <h2 className="text-4xl font-bold tracking-tight">
-                  you <span className="text-[#5856D6]">like to know?</span>
+                  What would you <span className="text-[#5856D6]">like to know?</span>
                 </h2>
                 <p className="text-sm text-muted-foreground mt-4">
                   Use one of the most common prompts below or use your own to begin
