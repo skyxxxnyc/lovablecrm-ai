@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { MessageSquare, X } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import ChatInterface from "./ChatInterface";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -44,15 +44,6 @@ export const FloatingChatButton = () => {
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="right" className="w-full sm:max-w-lg p-0 flex flex-col">
-          <SheetHeader className="px-6 py-4 border-b flex items-center justify-end">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </SheetHeader>
           <div className="flex-1 overflow-hidden">
             <ChatInterface user={user} />
           </div>
