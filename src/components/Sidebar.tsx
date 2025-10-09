@@ -26,7 +26,9 @@ import {
   FileText,
   Sliders,
   Database,
-  CreditCard
+  CreditCard,
+  MessageSquare,
+  Edit3
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
@@ -253,6 +255,16 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
           icon={CreditCard} 
           label="Billing" 
           onClick={() => navigate('/billing')} 
+        />
+        <NavButton 
+          icon={Edit3} 
+          label="Blog Admin" 
+          onClick={() => navigate('/blog-admin')} 
+        />
+        <NavButton 
+          icon={MessageSquare} 
+          label="Feedback" 
+          onClick={() => navigate('/feedback')} 
         />
       </div>
 
