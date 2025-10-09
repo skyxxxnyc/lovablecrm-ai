@@ -349,6 +349,7 @@ export type Database = {
           name: string
           notes: string | null
           phone: string | null
+          quality_score: number | null
           updated_at: string | null
           user_id: string
           website: string | null
@@ -361,6 +362,7 @@ export type Database = {
           name: string
           notes?: string | null
           phone?: string | null
+          quality_score?: number | null
           updated_at?: string | null
           user_id: string
           website?: string | null
@@ -373,6 +375,7 @@ export type Database = {
           name?: string
           notes?: string | null
           phone?: string | null
+          quality_score?: number | null
           updated_at?: string | null
           user_id?: string
           website?: string | null
@@ -384,6 +387,7 @@ export type Database = {
           company_id: string | null
           created_at: string | null
           email: string | null
+          engagement_score: number | null
           first_name: string
           id: string
           last_name: string
@@ -397,6 +401,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string | null
           email?: string | null
+          engagement_score?: number | null
           first_name: string
           id?: string
           last_name: string
@@ -410,6 +415,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string | null
           email?: string | null
+          engagement_score?: number | null
           first_name?: string
           id?: string
           last_name?: string
@@ -439,6 +445,7 @@ export type Database = {
           id: string
           notes: string | null
           probability: number | null
+          probability_score: number | null
           stage: string | null
           title: string
           updated_at: string | null
@@ -453,6 +460,7 @@ export type Database = {
           id?: string
           notes?: string | null
           probability?: number | null
+          probability_score?: number | null
           stage?: string | null
           title: string
           updated_at?: string | null
@@ -467,6 +475,7 @@ export type Database = {
           id?: string
           notes?: string | null
           probability?: number | null
+          probability_score?: number | null
           stage?: string | null
           title?: string
           updated_at?: string | null
@@ -658,6 +667,70 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      lead_scores: {
+        Row: {
+          company_id: string | null
+          contact_id: string | null
+          created_at: string | null
+          deal_id: string | null
+          id: string
+          last_calculated_at: string | null
+          score: number
+          score_history: Json | null
+          signals: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          deal_id?: string | null
+          id?: string
+          last_calculated_at?: string | null
+          score?: number
+          score_history?: Json | null
+          signals?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          deal_id?: string | null
+          id?: string
+          last_calculated_at?: string | null
+          score?: number
+          score_history?: Json | null
+          signals?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_scores_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_scores_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_scores_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {

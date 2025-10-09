@@ -12,6 +12,9 @@ import { ActivityHistory } from "./detail-panels/ActivityHistory";
 import { FileAttachment } from "./FileAttachment";
 import { RelatedRecords } from "./detail-panels/RelatedRecords";
 import { QuickActions } from "./detail-panels/QuickActions";
+import { LeadScoreBadge } from "./lead-scoring/LeadScoreBadge";
+import { EnrichmentSuggestions } from "./lead-scoring/EnrichmentSuggestions";
+import { ScoreBreakdown } from "./lead-scoring/ScoreBreakdown";
 import { 
   X, 
   Mail, 
@@ -39,6 +42,7 @@ interface Contact {
   position: string | null;
   notes: string | null;
   company_id: string | null;
+  engagement_score: number;
   companies?: {
     name: string;
   };
@@ -55,6 +59,7 @@ interface Attachment {
 
 const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => {
   const [contact, setContact] = useState<Contact | null>(null);
+  const [leadScore, setLeadScore] = useState<any>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -85,6 +90,15 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
     }
 
     setContact(contactData);
+
+    // Fetch lead score
+    const { data: scoreData } = await supabase
+      .from('lead_scores')
+      .select('*')
+      .eq('contact_id', contactId)
+      .maybeSingle();
+    
+    setLeadScore(scoreData);
 
     const { data: attachmentData } = await supabase
       .from('attachments')
@@ -176,9 +190,18 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
       <div className="p-6 border-b border-border">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h2 className="text-xl font-semibold mb-2">
-              {contact.first_name} {contact.last_name}
-            </h2>
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="text-xl font-semibold">
+                {contact.first_name} {contact.last_name}
+              </h2>
+              {leadScore && (
+                <LeadScoreBadge 
+                  score={leadScore.score} 
+                  signals={leadScore.signals}
+                  size="sm"
+                />
+              )}
+            </div>
             {contact.companies && (
               <p className="text-sm text-muted-foreground">{contact.companies.name}</p>
             )}
@@ -237,11 +260,18 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
         <TabsList className="mx-6 mt-2">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="scoring">Lead Score</TabsTrigger>
           <TabsTrigger value="related">Related</TabsTrigger>
         </TabsList>
 
         <ScrollArea className="flex-1">
           <TabsContent value="overview" className="p-6 space-y-6 m-0">
+            <EnrichmentSuggestions 
+              entityType="contact" 
+              entityId={contactId}
+              onApply={fetchContactDetails}
+            />
+            
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Paperclip className="h-4 w-4 text-primary" />
@@ -267,6 +297,17 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
 
           <TabsContent value="activity" className="p-6 m-0">
             <ActivityHistory entityType="contact" entityId={contactId} />
+          </TabsContent>
+
+          <TabsContent value="scoring" className="p-6 m-0">
+            {leadScore ? (
+              <ScoreBreakdown 
+                signals={leadScore.signals || []}
+                scoreHistory={leadScore.score_history || []}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">No scoring data available yet.</p>
+            )}
           </TabsContent>
 
           <TabsContent value="related" className="p-6 m-0">

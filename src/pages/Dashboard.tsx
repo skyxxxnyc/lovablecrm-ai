@@ -12,6 +12,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
+import { HotLeadsList } from "@/components/lead-scoring/HotLeadsList";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { CalendarView } from "@/components/calendar/CalendarView";
 import { Button } from "@/components/ui/button";
@@ -127,7 +128,14 @@ const Dashboard = () => {
               <TabsContent value="metrics" className="flex-1 overflow-auto p-6 m-0">
                 <div className="space-y-6">
                   <DashboardMetrics />
-                  <DashboardCharts />
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2">
+                      <DashboardCharts />
+                    </div>
+                    <div>
+                      <HotLeadsList />
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
               

@@ -3,6 +3,18 @@ project_id = "adevhdkpbelglaxfjvqr"
 [functions.oauth-google-calendar]
 verify_jwt = true
 
+[functions.calculate-lead-scores]
+verify_jwt = true
+
+[functions.enrich-contact]
+verify_jwt = true
+
+[functions.enrich-company]
+verify_jwt = true
+
+[functions.enrich-deal]
+verify_jwt = true
+
 [functions.sync-google-calendar]
 verify_jwt = true
 
