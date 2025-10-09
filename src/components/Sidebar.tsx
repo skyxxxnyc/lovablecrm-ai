@@ -187,14 +187,12 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
         <NavButton 
           icon={Building2} 
           label="Companies" 
-          active={activeView === 'companies'}
-          onClick={() => handleViewChange('companies')} 
+          onClick={() => navigate('/companies')} 
         />
         <NavButton 
           icon={Briefcase} 
           label="Deals" 
-          active={activeView === 'deals'}
-          onClick={() => handleViewChange('deals')} 
+          onClick={() => navigate('/deals')} 
         />
         <NavButton 
           icon={CheckSquare} 

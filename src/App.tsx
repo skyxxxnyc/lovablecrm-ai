@@ -17,6 +17,10 @@ import Reports from "./pages/Reports";
 import Analytics from "./pages/Analytics";
 import EmailHub from "./pages/EmailHub";
 import CustomFields from "./pages/CustomFields";
+import Companies from "./pages/Companies";
+import CompanyDetail from "./pages/CompanyDetail";
+import Deals from "./pages/Deals";
+import DealDetail from "./pages/DealDetail";
 import NotFound from "./pages/NotFound";
 import { FloatingChatButton } from "./components/FloatingChatButton";
 
@@ -43,6 +47,10 @@ const App = () => (
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/email-hub" element={<EmailHub />} />
           <Route path="/custom-fields" element={<CustomFields />} />
+          <Route path="/companies" element={<Companies />} />
+          <Route path="/companies/:id" element={<CompanyDetail />} />
+          <Route path="/deals" element={<Deals />} />
+          <Route path="/deals/:id" element={<DealDetail />} />
           <Route path="/book/:slug" element={<BookMeeting />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
