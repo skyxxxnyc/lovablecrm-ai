@@ -174,8 +174,11 @@ const ChatInterface = ({ user, onContactCreated, onContactSelect, onDealSelect, 
             <div className="flex flex-col justify-center min-h-[calc(100vh-300px)]">
               <div className="text-left mb-12 space-y-3">
                 <h1 className="text-5xl font-bold tracking-tight">
-                  Hi there, <span className="text-primary">{userName}</span>
+                  hi there, <span className="text-primary">{userName}</span>
                 </h1>
+                <p className="text-xl text-muted-foreground">
+                  today is thursday, october 9th
+                </p>
                 <h2 className="text-4xl font-bold tracking-tight">
                   What would you <span className="text-[#5856D6]">like to know?</span>
                 </h2>
