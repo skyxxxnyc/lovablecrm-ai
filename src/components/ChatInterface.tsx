@@ -151,7 +151,7 @@ const ChatInterface = ({
                 <p className="text-[#b4b123] text-left font-thin text-lg"> thursday, october 9th</p>
               </div>
               <h2 className="text-4xl font-bold tracking-tight">
-                What would you <span className="text-[#5856D6]">like to know?</span>
+                what would you <span className="text-[#5856D6]">like to know?</span>
               </h2>
                 <p className="text-sm text-muted-foreground mt-4">
                   Use one of the most common prompts below or use your own to begin
