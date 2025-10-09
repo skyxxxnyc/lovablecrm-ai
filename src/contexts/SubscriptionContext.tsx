@@ -7,7 +7,7 @@ export const SUBSCRIPTION_PLANS = {
     product_id: 'prod_TC4gvRUqeebQZj',
     price_id: 'price_1SFgX0P6d5asnGUaoNJX793Z',
     name: 'Pro Plan',
-    price: 29.00
+    price: 24.99
   }
 };
 

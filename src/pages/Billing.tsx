@@ -40,7 +40,7 @@ const plans: Plan[] = [
     id: "pro",
     name: "Pro",
     description: "Full-featured CRM for growing teams",
-    price: 29.00,
+    price: 24.99,
     interval: "month per user",
     popular: true,
     priceId: SUBSCRIPTION_PLANS.pro.price_id,
@@ -202,6 +202,9 @@ export default function Billing() {
             <p className="text-muted-foreground text-lg">
               Select the perfect plan for your business needs
             </p>
+            <Badge variant="outline" className="mt-2 border-primary text-primary">
+              🎉 First 100 users lock in $24.99/month for life
+            </Badge>
             {isPro && (
               <Badge className="mt-2 bg-primary text-primary-foreground">
                 ✓ Pro Plan Active
