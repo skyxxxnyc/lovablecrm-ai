@@ -9,10 +9,12 @@ import { WorkflowForm } from "@/components/workflows/WorkflowForm";
 import { WorkflowTemplates, WorkflowTemplate } from "@/components/workflows/WorkflowTemplates";
 import { ExecutionHistory } from "@/components/workflows/ExecutionHistory";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Play, Settings, Trash2, Zap, Sparkles } from "lucide-react";
+import { Plus, Play, Settings, Trash2, Zap, Sparkles, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Workflow {
   id: string;
@@ -34,6 +36,10 @@ const Workflows = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isPro } = useSubscription();
+
+  const FREE_WORKFLOW_LIMIT = 2;
+  const canCreateWorkflow = isPro || workflows.length < FREE_WORKFLOW_LIMIT;
 
   useEffect(() => {
     checkAuth();
@@ -111,8 +117,30 @@ const Workflows = () => {
   };
 
   const handleSelectTemplate = (template: WorkflowTemplate) => {
+    if (!canCreateWorkflow) {
+      toast({
+        title: "Upgrade Required",
+        description: "Free tier is limited to 2 workflows. Upgrade to Pro for unlimited workflows.",
+        variant: "destructive",
+      });
+      return;
+    }
     setSelectedTemplate(template);
     setShowTemplatesDialog(false);
+    setShowCreateDialog(true);
+  };
+
+  const handleCreateWorkflow = () => {
+    if (!canCreateWorkflow) {
+      toast({
+        title: "Upgrade Required",
+        description: "Free tier is limited to 2 workflows. Upgrade to Pro for unlimited workflows.",
+        variant: "destructive",
+      });
+      navigate('/billing');
+      return;
+    }
+    setSelectedTemplate(null);
     setShowCreateDialog(true);
   };
 
@@ -139,6 +167,7 @@ const Workflows = () => {
             </h1>
             <p className="text-muted-foreground text-sm md:text-base">
               Automate your CRM tasks and streamline your workflow
+              {!isPro && ` (${workflows.length}/${FREE_WORKFLOW_LIMIT} workflows used)`}
             </p>
           </div>
           <div className="flex gap-2 w-full md:w-auto">
@@ -159,10 +188,8 @@ const Workflows = () => {
               Templates
             </Button>
             <Button 
-              onClick={() => {
-                setSelectedTemplate(null);
-                setShowCreateDialog(true);
-              }}
+              onClick={handleCreateWorkflow}
+              disabled={!canCreateWorkflow}
               className="flex-1 md:flex-initial shadow-md hover:shadow-lg transition-all hover:scale-105"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -170,6 +197,18 @@ const Workflows = () => {
             </Button>
           </div>
         </div>
+
+        {!isPro && workflows.length >= FREE_WORKFLOW_LIMIT && (
+          <Alert className="mb-6 border-primary/50 bg-primary/5">
+            <Crown className="h-4 w-4 text-primary" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>You've reached the free tier limit of {FREE_WORKFLOW_LIMIT} workflows. Upgrade to create unlimited workflows.</span>
+              <Button size="sm" onClick={() => navigate('/billing')} className="ml-4">
+                Upgrade to Pro
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {loading ? (
           <div className="flex items-center justify-center py-16">
@@ -198,10 +237,8 @@ const Workflows = () => {
                   Browse Templates
                 </Button>
                 <Button 
-                  onClick={() => {
-                    setSelectedTemplate(null);
-                    setShowCreateDialog(true);
-                  }} 
+                  onClick={handleCreateWorkflow}
+                  disabled={!canCreateWorkflow}
                   className="shadow-md hover:shadow-lg transition-all"
                 >
                   <Plus className="mr-2 h-4 w-4" />
