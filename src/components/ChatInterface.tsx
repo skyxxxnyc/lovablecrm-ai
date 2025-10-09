@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useStreamingChat } from "@/hooks/useStreamingChat";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
+import { useVoiceConversation } from "@/hooks/useVoiceConversation";
 import { SmartSuggestions } from "./chat/SmartSuggestions";
 import { ContactCard } from "./chat/ContactCard";
 import { TaskCard } from "./chat/TaskCard";
@@ -23,7 +24,9 @@ import {
   FileText,
   Sparkles,
   Mic,
-  MicOff
+  MicOff,
+  PhoneCall,
+  PhoneOff
 } from "lucide-react";
 import { useState } from "react";
 
@@ -81,6 +84,7 @@ const ChatInterface = ({ user, onContactCreated, onContactSelect, onDealSelect, 
   });
 
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceInput();
+  const voiceConversation = useVoiceConversation();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -146,7 +150,27 @@ const ChatInterface = ({ user, onContactCreated, onContactSelect, onDealSelect, 
       {/* Messages */}
       <ScrollArea className="flex-1" ref={scrollAreaRef}>
         <div className="max-w-5xl mx-auto px-6 py-12">
-          {messages.length === 0 ? (
+          {/* Voice Conversation Indicator */}
+          {voiceConversation.isActive && (
+            <div className="flex justify-center mb-6">
+              <div className="bg-primary/10 border border-primary/20 rounded-full px-6 py-3 flex items-center gap-3">
+                <div className={`h-3 w-3 rounded-full ${
+                  voiceConversation.isRecording ? 'bg-red-500 animate-pulse' :
+                  voiceConversation.isSpeaking ? 'bg-blue-500 animate-pulse' :
+                  voiceConversation.isThinking ? 'bg-yellow-500 animate-pulse' :
+                  'bg-green-500'
+                }`} />
+                <span className="text-sm font-medium">
+                  {voiceConversation.isRecording ? 'Listening...' :
+                   voiceConversation.isThinking ? 'Thinking...' :
+                   voiceConversation.isSpeaking ? 'Speaking...' :
+                   'Voice Active'}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {messages.length === 0 && !voiceConversation.isActive ? (
             <div className="flex flex-col justify-center min-h-[calc(100vh-300px)]">
               <div className="text-left mb-12 space-y-3">
                 <h1 className="text-5xl font-bold tracking-tight">
@@ -265,27 +289,68 @@ const ChatInterface = ({ user, onContactCreated, onContactSelect, onDealSelect, 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask whatever you want..."
+              placeholder={voiceConversation.isActive ? "Voice conversation active - use the phone button to talk" : "Ask whatever you want..."}
               className="min-h-[80px] border-0 resize-none pr-36 focus-visible:ring-0 rounded-2xl"
               rows={1}
+              disabled={voiceConversation.isActive}
             />
             <div className="absolute bottom-3 left-4 flex items-center space-x-2">
+              {/* Voice Conversation Toggle */}
               <Button 
-                variant="ghost" 
+                variant={voiceConversation.isActive ? "default" : "ghost"}
                 size="icon" 
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                onClick={handleVoiceInput}
-                disabled={isProcessing}
+                className="h-8 w-8"
+                onClick={() => {
+                  if (voiceConversation.isActive) {
+                    voiceConversation.endConversation();
+                  } else {
+                    voiceConversation.startConversation();
+                  }
+                }}
               >
-                {isRecording ? (
-                  <MicOff className="h-4 w-4 text-red-500 animate-pulse" />
+                {voiceConversation.isActive ? (
+                  <PhoneOff className="h-4 w-4" />
                 ) : (
-                  <Mic className="h-4 w-4" />
+                  <PhoneCall className="h-4 w-4" />
                 )}
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                <ImageIcon className="h-4 w-4" />
-              </Button>
+
+              {voiceConversation.isActive ? (
+                <Button 
+                  variant="ghost"
+                  size="icon" 
+                  className={`h-8 w-8 ${voiceConversation.isRecording ? 'text-red-500' : 'text-muted-foreground'}`}
+                  onClick={voiceConversation.handleVoiceInput}
+                  disabled={voiceConversation.isProcessing || voiceConversation.isSpeaking || voiceConversation.isThinking}
+                >
+                  {voiceConversation.isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : voiceConversation.isRecording ? (
+                    <MicOff className="h-4 w-4 animate-pulse" />
+                  ) : (
+                    <Mic className="h-4 w-4" />
+                  )}
+                </Button>
+              ) : (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    onClick={handleVoiceInput}
+                    disabled={isProcessing}
+                  >
+                    {isRecording ? (
+                      <MicOff className="h-4 w-4 text-red-500 animate-pulse" />
+                    ) : (
+                      <Mic className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                    <ImageIcon className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
             </div>
             <div className="absolute bottom-3 right-3 flex items-center space-x-3">
               <span className="text-xs text-muted-foreground">
@@ -293,7 +358,7 @@ const ChatInterface = ({ user, onContactCreated, onContactSelect, onDealSelect, 
               </span>
               <Button
                 onClick={() => handleSend()}
-                disabled={!input.trim() || isLoading}
+                disabled={!input.trim() || isLoading || voiceConversation.isActive}
                 size="icon"
                 className="h-9 w-9 rounded-lg"
               >
