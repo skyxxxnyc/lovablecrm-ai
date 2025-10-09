@@ -146,12 +146,10 @@ const ChatInterface = ({
 
           {messages.length === 0 && !voiceConversation.isActive ? <div className="flex flex-col justify-center min-h-[calc(100vh-300px)]">
             <div className="text-left mb-12 space-y-3">
-              <div className="flex items-baseline justify-between">
-                <h1 className="text-5xl font-bold tracking-tight">
-                  hi there, <span className="text-primary">{userName}</span>
-                </h1>
-                <p className="text-[#b4b123] text-left font-thin text-lg">{currentDate}</p>
-              </div>
+              <p className="text-[#b4b123] text-left font-thin text-lg mb-2">{currentDate}</p>
+              <h1 className="text-5xl font-bold tracking-tight">
+                hi there, <span className="text-primary">{userName}</span>
+              </h1>
               <h2 className="text-4xl font-bold tracking-tight">
                 what would you <span className="text-[#5856D6]">like to know?</span>
               </h2>
