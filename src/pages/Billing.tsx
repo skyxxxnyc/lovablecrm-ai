@@ -105,7 +105,7 @@ export default function Billing() {
   };
 
   const handleSubscribe = async (planId: string, priceId?: string) => {
-    if (!priceId) return;
+    if (planId === "free") return;
     
     try {
       setProcessingPlan(planId);
@@ -121,18 +121,8 @@ export default function Billing() {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId },
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      }
+      // Open the Stripe payment link
+      window.open('https://buy.stripe.com/3cIeVfgfjaAGaFpcZVds402', '_blank');
 
       setProcessingPlan(null);
     } catch (error: any) {
