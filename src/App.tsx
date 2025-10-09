@@ -15,6 +15,8 @@ import AutomationRules from "./pages/AutomationRules";
 import Pipeline from "./pages/Pipeline";
 import Reports from "./pages/Reports";
 import Analytics from "./pages/Analytics";
+import EmailHub from "./pages/EmailHub";
+import CustomFields from "./pages/CustomFields";
 import NotFound from "./pages/NotFound";
 import { FloatingChatButton } from "./components/FloatingChatButton";
 
@@ -39,6 +41,8 @@ const App = () => (
           <Route path="/pipeline" element={<Pipeline />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/email-hub" element={<EmailHub />} />
+          <Route path="/custom-fields" element={<CustomFields />} />
           <Route path="/book/:slug" element={<BookMeeting />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

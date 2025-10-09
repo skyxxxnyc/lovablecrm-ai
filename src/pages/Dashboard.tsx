@@ -14,6 +14,8 @@ import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { HotLeadsList } from "@/components/lead-scoring/HotLeadsList";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
+import { GlobalSearch } from "@/components/GlobalSearch";
+import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import { CalendarView } from "@/components/calendar/CalendarView";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,6 +30,7 @@ const Dashboard = () => {
   const [currentView, setCurrentView] = useState<'chat' | 'contacts' | 'deals' | 'companies' | 'tasks'>('chat');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showActivityFeed, setShowActivityFeed] = useState(false);
+  const { isOpen: searchOpen, setIsOpen: setSearchOpen } = useGlobalSearch();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -185,6 +188,8 @@ const Dashboard = () => {
           )}
         </main>
       </div>
+      
+      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 };

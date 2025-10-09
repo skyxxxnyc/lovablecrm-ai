@@ -166,7 +166,11 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
       {/* Navigation Icons */}
       <div className="flex-1 p-3 space-y-2 overflow-y-auto">
         <NavButton icon={Plus} label="New" onClick={() => setShowNewDialog(true)} />
-        <NavButton icon={Search} label="Search" />
+        <NavButton 
+          icon={Search} 
+          label="Search"
+          onClick={() => {} /* Handled by keyboard shortcut */}
+        />
         <div className="pt-2 border-t border-border" />
         <NavButton 
           icon={Sparkles} 
@@ -226,13 +230,18 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
         />
         <NavButton 
           icon={Mail} 
-          label="Email Sequences" 
-          onClick={() => navigate('/sequences')} 
+          label="Email Hub" 
+          onClick={() => navigate('/email-hub')} 
         />
         <NavButton 
           icon={Calendar} 
           label="Scheduling" 
           onClick={() => navigate('/scheduling')} 
+        />
+        <NavButton 
+          icon={Settings} 
+          label="Custom Fields" 
+          onClick={() => navigate('/custom-fields')} 
         />
         <NavButton 
           icon={BookOpen} 

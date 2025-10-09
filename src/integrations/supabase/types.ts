@@ -482,6 +482,86 @@ export type Database = {
           },
         ]
       }
+      custom_field_values: {
+        Row: {
+          created_at: string | null
+          custom_field_id: string
+          entity_id: string
+          id: string
+          updated_at: string | null
+          value: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          custom_field_id: string
+          entity_id: string
+          id?: string
+          updated_at?: string | null
+          value?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          custom_field_id?: string
+          entity_id?: string
+          id?: string
+          updated_at?: string | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_field_values_custom_field_id_fkey"
+            columns: ["custom_field_id"]
+            isOneToOne: false
+            referencedRelation: "custom_fields"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_fields: {
+        Row: {
+          created_at: string | null
+          default_value: string | null
+          display_order: number | null
+          entity_type: string
+          field_label: string
+          field_name: string
+          field_options: Json | null
+          field_type: string
+          id: string
+          is_required: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          default_value?: string | null
+          display_order?: number | null
+          entity_type: string
+          field_label: string
+          field_name: string
+          field_options?: Json | null
+          field_type: string
+          id?: string
+          is_required?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          default_value?: string | null
+          display_order?: number | null
+          entity_type?: string
+          field_label?: string
+          field_name?: string
+          field_options?: Json | null
+          field_type?: string
+          id?: string
+          is_required?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       deals: {
         Row: {
           amount: number | null
@@ -574,6 +654,108 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      email_templates: {
+        Row: {
+          body: string
+          category: string | null
+          created_at: string | null
+          id: string
+          is_shared: boolean | null
+          name: string
+          subject: string
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          body: string
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_shared?: boolean | null
+          name: string
+          subject: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          body?: string
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_shared?: boolean | null
+          name?: string
+          subject?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      email_tracking: {
+        Row: {
+          body: string
+          clicked_at: string | null
+          contact_id: string | null
+          deal_id: string | null
+          external_id: string | null
+          id: string
+          metadata: Json | null
+          opened_at: string | null
+          replied_at: string | null
+          sent_at: string | null
+          status: string | null
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          clicked_at?: string | null
+          contact_id?: string | null
+          deal_id?: string | null
+          external_id?: string | null
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          replied_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+          subject: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          clicked_at?: string | null
+          contact_id?: string | null
+          deal_id?: string | null
+          external_id?: string | null
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          replied_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+          subject?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_tracking_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_tracking_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       emails: {
         Row: {
@@ -720,6 +902,45 @@ export type Database = {
           status?: string | null
           target_value?: number
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      import_history: {
+        Row: {
+          entity_type: string
+          error_log: Json | null
+          failed_rows: number | null
+          file_name: string
+          id: string
+          imported_at: string | null
+          status: string | null
+          successful_rows: number | null
+          total_rows: number | null
+          user_id: string
+        }
+        Insert: {
+          entity_type: string
+          error_log?: Json | null
+          failed_rows?: number | null
+          file_name: string
+          id?: string
+          imported_at?: string | null
+          status?: string | null
+          successful_rows?: number | null
+          total_rows?: number | null
+          user_id: string
+        }
+        Update: {
+          entity_type?: string
+          error_log?: Json | null
+          failed_rows?: number | null
+          file_name?: string
+          id?: string
+          imported_at?: string | null
+          status?: string | null
+          successful_rows?: number | null
+          total_rows?: number | null
           user_id?: string
         }
         Relationships: []
@@ -983,6 +1204,39 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_filters: {
+        Row: {
+          created_at: string | null
+          entity_type: string
+          filter_config: Json
+          id: string
+          is_default: boolean | null
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          entity_type: string
+          filter_config: Json
+          id?: string
+          is_default?: boolean | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          entity_type?: string
+          filter_config?: Json
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       saved_reports: {
         Row: {
           data: Json
@@ -1091,6 +1345,33 @@ export type Database = {
           slug?: string
           title?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      search_history: {
+        Row: {
+          entity_type: string | null
+          id: string
+          query: string
+          results_count: number | null
+          searched_at: string | null
+          user_id: string
+        }
+        Insert: {
+          entity_type?: string | null
+          id?: string
+          query: string
+          results_count?: number | null
+          searched_at?: string | null
+          user_id: string
+        }
+        Update: {
+          entity_type?: string | null
+          id?: string
+          query?: string
+          results_count?: number | null
+          searched_at?: string | null
           user_id?: string
         }
         Relationships: []
