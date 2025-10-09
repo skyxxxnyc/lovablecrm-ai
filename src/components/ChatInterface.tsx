@@ -14,7 +14,7 @@ import { ContactCard } from "./chat/ContactCard";
 import { TaskCard } from "./chat/TaskCard";
 import { DealCard } from "./chat/DealCard";
 import { CompanyCard } from "./chat/CompanyCard";
-import { Send, Paperclip, Image as ImageIcon, Loader2, RefreshCw, Mail, FileText, Sparkles, Mic, MicOff, PhoneCall, PhoneOff } from "lucide-react";
+import { Send, Paperclip, Image as ImageIcon, Loader2, RefreshCw, Mic, MicOff, PhoneCall, PhoneOff, Users, Building2, Briefcase, CheckSquare } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
 interface ChatInterfaceProps {
@@ -26,16 +26,16 @@ interface ChatInterfaceProps {
 }
 const promptSuggestions = [{
   text: "Show me all my contacts",
-  icon: FileText
+  icon: Users
 }, {
   text: "Show me my tasks",
-  icon: Mail
+  icon: CheckSquare
 }, {
   text: "Show me my deals",
-  icon: FileText
+  icon: Briefcase
 }, {
   text: "Show me my companies",
-  icon: Sparkles
+  icon: Building2
 }];
 const ChatInterface = ({
   user,
