@@ -23,7 +23,9 @@ import {
   Sun,
   TrendingUp,
   BarChart3,
-  FileText
+  FileText,
+  Sliders,
+  Database
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
@@ -222,7 +224,7 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
           onClick={() => navigate('/workflows')} 
         />
         <NavButton 
-          icon={Settings} 
+          icon={Sliders} 
           label="Automation Rules" 
           onClick={() => navigate('/automation')} 
         />
@@ -237,7 +239,7 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
           onClick={() => navigate('/scheduling')} 
         />
         <NavButton 
-          icon={Settings} 
+          icon={Database} 
           label="Custom Fields" 
           onClick={() => navigate('/custom-fields')} 
         />
@@ -259,6 +261,11 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
           icon={theme === 'dark' ? Sun : Moon} 
           label={theme === 'dark' ? 'Light mode' : 'Dark mode'}
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
+        />
+        <NavButton 
+          icon={Settings} 
+          label="Settings" 
+          onClick={() => navigate('/settings')} 
         />
         <NavButton icon={LogOut} label="Sign out" onClick={handleSignOut} />
       </div>
