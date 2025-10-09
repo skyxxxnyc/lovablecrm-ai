@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppLayout } from "@/components/AppLayout";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 interface Company {
   id: string;
@@ -77,8 +79,11 @@ export default function Companies() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <AppLayout>
+      <div className="p-6">
+        <Breadcrumbs items={[{ label: "Companies" }]} />
+        
+        <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -210,6 +215,7 @@ export default function Companies() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

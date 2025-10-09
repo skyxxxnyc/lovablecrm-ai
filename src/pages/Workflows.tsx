@@ -11,14 +11,8 @@ import { ExecutionHistory } from "@/components/workflows/ExecutionHistory";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Play, Settings, Trash2, Zap, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { AppLayout } from "@/components/AppLayout";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 interface Workflow {
   id: string;
@@ -134,21 +128,10 @@ const Workflows = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8 animate-fade-in">
-      <div className="max-w-7xl mx-auto">
-        <Breadcrumb className="mb-6">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard" className="transition-colors hover:text-primary">
-                Dashboard
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="font-medium">Workflows</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+    <AppLayout>
+      <div className="p-4 md:p-8 animate-fade-in">
+        <div className="max-w-7xl mx-auto">
+          <Breadcrumbs items={[{ label: "Workflows" }]} />
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
           <div className="space-y-1">
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
@@ -369,6 +352,7 @@ const Workflows = () => {
         </DialogContent>
       </Dialog>
     </div>
+    </AppLayout>
   );
 };
 

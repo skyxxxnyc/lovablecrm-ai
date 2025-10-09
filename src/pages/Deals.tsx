@@ -16,6 +16,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
+import { AppLayout } from "@/components/AppLayout";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 interface Deal {
   id: string;
@@ -128,8 +130,11 @@ export default function Deals() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <AppLayout>
+      <div className="p-6">
+        <Breadcrumbs items={[{ label: "Deals" }]} />
+        
+        <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -255,6 +260,7 @@ export default function Deals() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

@@ -6,6 +6,8 @@ import { ArrowLeft, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DealDetailPanel from "@/components/DealDetailPanel";
 import { Badge } from "@/components/ui/badge";
+import { AppLayout } from "@/components/AppLayout";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 interface Deal {
   id: string;
@@ -91,23 +93,17 @@ export default function DealDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-4 mb-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/deals")}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Deals
-            </Button>
-          </div>
+      <AppLayout>
+        <div className="p-6">
+          <Breadcrumbs items={[
+            { label: "Deals", href: "/deals" },
+            { label: "Loading..." }
+          ]} />
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading deal details...</p>
           </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
@@ -116,8 +112,12 @@ export default function DealDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto">
+    <AppLayout>
+      <div className="p-6">
+        <Breadcrumbs items={[
+          { label: "Deals", href: "/deals" },
+          { label: deal.title }
+        ]} />
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="ghost"
@@ -142,6 +142,6 @@ export default function DealDetail() {
           onClose={handleClose}
         />
       </div>
-    </div>
+    </AppLayout>
   );
 }

@@ -11,6 +11,8 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Settings as SettingsIcon, User, Bell, Shield, Key } from "lucide-react";
 import { z } from "zod";
+import { AppLayout } from "@/components/AppLayout";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 const profileSchema = z.object({
   full_name: z.string().min(1, "Name is required").max(100),
@@ -198,17 +200,21 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-4xl mx-auto">
+      <AppLayout>
+        <div className="p-6">
+          <Breadcrumbs items={[{ label: "Settings" }]} />
           <p className="text-center text-muted-foreground">Loading settings...</p>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <AppLayout>
+      <div className="p-6">
+        <Breadcrumbs items={[{ label: "Settings" }]} />
+        
+        <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-3">
           <SettingsIcon className="h-8 w-8 text-primary" />
           <div>
@@ -399,6 +405,7 @@ export default function Settings() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+      </div>
+    </AppLayout>
   );
 }
