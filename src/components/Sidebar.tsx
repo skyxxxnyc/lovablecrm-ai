@@ -21,7 +21,9 @@ import {
   Settings,
   Moon,
   Sun,
-  TrendingUp
+  TrendingUp,
+  BarChart3,
+  FileText
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
@@ -201,6 +203,16 @@ const Sidebar = ({ onContactSelect, onDealSelect, onCompanySelect, onViewChange 
           icon={TrendingUp} 
           label="Pipeline" 
           onClick={() => navigate('/pipeline')} 
+        />
+        <NavButton 
+          icon={FileText} 
+          label="Reports" 
+          onClick={() => navigate('/reports')} 
+        />
+        <NavButton 
+          icon={BarChart3} 
+          label="Analytics" 
+          onClick={() => navigate('/analytics')} 
         />
         <NavButton 
           icon={Zap} 

@@ -13,6 +13,8 @@ import BookMeeting from "./pages/BookMeeting";
 import PromptLibrary from "./pages/PromptLibrary";
 import AutomationRules from "./pages/AutomationRules";
 import Pipeline from "./pages/Pipeline";
+import Reports from "./pages/Reports";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 import { FloatingChatButton } from "./components/FloatingChatButton";
 
@@ -35,6 +37,8 @@ const App = () => (
           <Route path="/prompts" element={<PromptLibrary />} />
           <Route path="/automation" element={<AutomationRules />} />
           <Route path="/pipeline" element={<Pipeline />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="/book/:slug" element={<BookMeeting />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

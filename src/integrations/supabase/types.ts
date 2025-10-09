@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      ab_test_variants: {
+        Row: {
+          click_count: number | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          open_count: number | null
+          reply_count: number | null
+          sent_count: number | null
+          sequence_id: string
+          variant_config: Json
+          variant_name: string
+        }
+        Insert: {
+          click_count?: number | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          open_count?: number | null
+          reply_count?: number | null
+          sent_count?: number | null
+          sequence_id: string
+          variant_config: Json
+          variant_name: string
+        }
+        Update: {
+          click_count?: number | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          open_count?: number | null
+          reply_count?: number | null
+          sent_count?: number | null
+          sequence_id?: string
+          variant_config?: Json
+          variant_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ab_test_variants_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "email_sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activities: {
         Row: {
           activity_date: string | null
@@ -635,6 +682,48 @@ export type Database = {
         }
         Relationships: []
       }
+      goals: {
+        Row: {
+          created_at: string | null
+          current_value: number | null
+          goal_type: string
+          id: string
+          period_end: string
+          period_start: string
+          period_type: string
+          status: string | null
+          target_value: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_value?: number | null
+          goal_type: string
+          id?: string
+          period_end: string
+          period_start: string
+          period_type: string
+          status?: string | null
+          target_value: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_value?: number | null
+          goal_type?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          period_type?: string
+          status?: string | null
+          target_value?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       integrations: {
         Row: {
           config: Json
@@ -664,6 +753,36 @@ export type Database = {
           is_active?: boolean | null
           name?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      kpi_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          metric_date: string
+          metric_name: string
+          metric_value: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_date: string
+          metric_name: string
+          metric_value: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_date?: string
+          metric_name?: string
+          metric_value?: number
           user_id?: string
         }
         Relationships: []
@@ -827,6 +946,77 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      report_definitions: {
+        Row: {
+          config: Json
+          created_at: string | null
+          description: string | null
+          id: string
+          is_template: boolean | null
+          name: string
+          report_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_template?: boolean | null
+          name: string
+          report_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_template?: boolean | null
+          name?: string
+          report_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_reports: {
+        Row: {
+          data: Json
+          generated_at: string | null
+          id: string
+          name: string
+          report_definition_id: string | null
+          user_id: string
+        }
+        Insert: {
+          data?: Json
+          generated_at?: string | null
+          id?: string
+          name: string
+          report_definition_id?: string | null
+          user_id: string
+        }
+        Update: {
+          data?: Json
+          generated_at?: string | null
+          id?: string
+          name?: string
+          report_definition_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_reports_report_definition_id_fkey"
+            columns: ["report_definition_id"]
+            isOneToOne: false
+            referencedRelation: "report_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scheduled_meetings: {
         Row: {
@@ -1104,6 +1294,89 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      workflow_metrics: {
+        Row: {
+          avg_execution_time_ms: number | null
+          created_at: string | null
+          execution_count: number | null
+          failure_count: number | null
+          id: string
+          last_executed_at: string | null
+          success_count: number | null
+          updated_at: string | null
+          workflow_id: string
+        }
+        Insert: {
+          avg_execution_time_ms?: number | null
+          created_at?: string | null
+          execution_count?: number | null
+          failure_count?: number | null
+          id?: string
+          last_executed_at?: string | null
+          success_count?: number | null
+          updated_at?: string | null
+          workflow_id: string
+        }
+        Update: {
+          avg_execution_time_ms?: number | null
+          created_at?: string | null
+          execution_count?: number | null
+          failure_count?: number | null
+          id?: string
+          last_executed_at?: string | null
+          success_count?: number | null
+          updated_at?: string | null
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_metrics_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_templates: {
+        Row: {
+          actions: Json
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          trigger_conditions: Json | null
+          trigger_type: string
+          usage_count: number | null
+        }
+        Insert: {
+          actions: Json
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          trigger_conditions?: Json | null
+          trigger_type: string
+          usage_count?: number | null
+        }
+        Update: {
+          actions?: Json
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          trigger_conditions?: Json | null
+          trigger_type?: string
+          usage_count?: number | null
+        }
+        Relationships: []
       }
       workflows: {
         Row: {
