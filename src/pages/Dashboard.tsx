@@ -6,7 +6,8 @@ import ChatInterface from "@/components/ChatInterface";
 import ContactDetailPanel from "@/components/ContactDetailPanel";
 import DealDetailPanel from "@/components/DealDetailPanel";
 import CompanyDetailPanel from "@/components/CompanyDetailPanel";
-import Sidebar from "@/components/Sidebar";
+import ResponsiveLayout from "@/components/mobile/ResponsiveLayout";
+import MobileFAB from "@/components/mobile/MobileFAB";
 import { Onboarding } from "@/components/Onboarding";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ActivityFeed } from "@/components/ActivityFeed";
@@ -17,9 +18,11 @@ import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import { CalendarView } from "@/components/calendar/CalendarView";
+import { NewItemDialog } from "@/components/NewItemDialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Activity, X } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -30,7 +33,9 @@ const Dashboard = () => {
   const [currentView, setCurrentView] = useState<'chat' | 'contacts' | 'deals' | 'companies' | 'tasks'>('chat');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showActivityFeed, setShowActivityFeed] = useState(false);
+  const [showNewDialog, setShowNewDialog] = useState(false);
   const { isOpen: searchOpen, setIsOpen: setSearchOpen } = useGlobalSearch();
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -86,36 +91,44 @@ const Dashboard = () => {
         onComplete={() => setShowOnboarding(false)} 
       />
       
-      <div className="flex h-screen overflow-hidden bg-background">
-        <Sidebar 
-          onContactSelect={setSelectedContactId}
-          onDealSelect={setSelectedDealId}
-          onCompanySelect={setSelectedCompanyId}
-          onViewChange={setCurrentView}
-        />
-        
-        <main className="flex-1 flex overflow-hidden">
-          <div className="flex-1 flex flex-col">
+      <ResponsiveLayout
+        onViewChange={(view) => setCurrentView(view as 'chat' | 'contacts' | 'deals' | 'companies' | 'tasks')}
+        onContactSelect={setSelectedContactId}
+        onDealSelect={setSelectedDealId}
+        onCompanySelect={setSelectedCompanyId}
+      >
+        <div className="flex flex-1 overflow-hidden bg-background">
+          <div className="flex-1 flex flex-col overflow-hidden">
             <Tabs defaultValue="chat" className="flex-1 flex flex-col overflow-hidden">
               {/* Top Bar with Tabs and Notifications */}
-              <div className="border-b border-border px-6 py-3 flex items-center justify-between">
-                <TabsList>
-                  <TabsTrigger value="chat">AI Chat</TabsTrigger>
-                  <TabsTrigger value="metrics">Metrics</TabsTrigger>
-                  <TabsTrigger value="calendar">Calendar</TabsTrigger>
-                  <TabsTrigger value="activity">Activity</TabsTrigger>
+              <div className="border-b border-border px-4 md:px-6 py-3 flex items-center justify-between">
+                <TabsList className={isMobile ? "scale-90" : ""}>
+                  <TabsTrigger value="chat" className={isMobile ? "text-xs px-2" : ""}>
+                    {isMobile ? "Chat" : "AI Chat"}
+                  </TabsTrigger>
+                  <TabsTrigger value="metrics" className={isMobile ? "text-xs px-2" : ""}>
+                    Metrics
+                  </TabsTrigger>
+                  <TabsTrigger value="calendar" className={isMobile ? "text-xs px-2" : ""}>
+                    Calendar
+                  </TabsTrigger>
+                  <TabsTrigger value="activity" className={isMobile ? "text-xs px-2" : ""}>
+                    Activity
+                  </TabsTrigger>
                 </TabsList>
                 
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setShowActivityFeed(!showActivityFeed)}
-                  >
-                    <Activity className="h-5 w-5" />
-                  </Button>
-                  <NotificationBell />
-                </div>
+                {!isMobile && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowActivityFeed(!showActivityFeed)}
+                    >
+                      <Activity className="h-5 w-5" />
+                    </Button>
+                    <NotificationBell />
+                  </div>
+                )}
               </div>
               
               <TabsContent value="chat" className="flex-1 overflow-auto m-0">
@@ -128,7 +141,7 @@ const Dashboard = () => {
                 />
               </TabsContent>
               
-              <TabsContent value="metrics" className="flex-1 overflow-auto p-6 m-0">
+              <TabsContent value="metrics" className="flex-1 overflow-auto p-4 md:p-6 m-0">
                 <div className="space-y-6">
                   <DashboardMetrics />
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -142,17 +155,17 @@ const Dashboard = () => {
                 </div>
               </TabsContent>
               
-              <TabsContent value="calendar" className="flex-1 overflow-auto p-6 m-0">
+              <TabsContent value="calendar" className="flex-1 overflow-auto p-4 md:p-6 m-0">
                 <CalendarView />
               </TabsContent>
               
-              <TabsContent value="activity" className="flex-1 overflow-auto p-6 m-0">
+              <TabsContent value="activity" className="flex-1 overflow-auto p-4 md:p-6 m-0">
                 <ActivityTimeline />
               </TabsContent>
             </Tabs>
           </div>
           
-          {showActivityFeed && (
+          {!isMobile && showActivityFeed && (
             <div className="w-96 border-l border-border relative">
               <Button
                 variant="ghost"
@@ -186,8 +199,21 @@ const Dashboard = () => {
               onClose={() => setSelectedCompanyId(null)}
             />
           )}
-        </main>
-      </div>
+        </div>
+      </ResponsiveLayout>
+      
+      {/* Mobile FAB for quick actions */}
+      <MobileFAB
+        onNewContact={() => setShowNewDialog(true)}
+        onNewDeal={() => setShowNewDialog(true)}
+        onNewCompany={() => setShowNewDialog(true)}
+        onNewEvent={() => navigate('/scheduling')}
+      />
+      
+      <NewItemDialog 
+        open={showNewDialog} 
+        onOpenChange={setShowNewDialog}
+      />
       
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>

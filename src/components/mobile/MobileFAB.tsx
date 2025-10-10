@@ -13,32 +13,31 @@ interface MobileFABProps {
 
 const MobileFAB = ({ onNewContact, onNewDeal, onNewCompany, onNewEvent }: MobileFABProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
 
   const actions = [
     {
       icon: UserPlus,
       label: "Contact",
       onClick: onNewContact,
-      color: "bg-blue-500 hover:bg-blue-600",
+      color: "bg-primary hover:bg-primary/90",
     },
     {
       icon: Briefcase,
       label: "Deal",
       onClick: onNewDeal,
-      color: "bg-green-500 hover:bg-green-600",
+      color: "bg-accent hover:bg-accent/90",
     },
     {
       icon: Building2,
       label: "Company",
       onClick: onNewCompany,
-      color: "bg-purple-500 hover:bg-purple-600",
+      color: "bg-secondary hover:bg-secondary/90",
     },
     {
       icon: Calendar,
       label: "Event",
       onClick: onNewEvent,
-      color: "bg-orange-500 hover:bg-orange-600",
+      color: "bg-muted hover:bg-muted/90",
     },
   ];
 
@@ -89,14 +88,14 @@ const MobileFAB = ({ onNewContact, onNewDeal, onNewCompany, onNewEvent }: Mobile
           size="icon"
           className={cn(
             "h-14 w-14 rounded-full shadow-lg self-end transition-transform",
-            isOpen ? "rotate-45 bg-destructive hover:bg-destructive" : "bg-primary hover:bg-primary"
+            isOpen ? "rotate-45 bg-destructive hover:bg-destructive" : "bg-primary hover:bg-primary/90"
           )}
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? (
-            <X className="h-6 w-6 text-white" />
+            <X className="h-6 w-6 text-primary-foreground" />
           ) : (
-            <Plus className="h-6 w-6 text-white" />
+            <Plus className="h-6 w-6 text-primary-foreground" />
           )}
         </Button>
       </div>

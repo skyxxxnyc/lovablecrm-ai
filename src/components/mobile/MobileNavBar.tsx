@@ -2,9 +2,9 @@ import { NavLink } from "react-router-dom";
 import { Home, Users, Briefcase, Calendar, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import Sidebar from "@/components/Sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface MobileNavBarProps {
   onViewChange?: (view: string) => void;
@@ -53,13 +53,10 @@ const MobileNavBar = ({ onViewChange, onContactSelect, onDealSelect, onCompanySe
           <SheetContent side="bottom" className="h-[85vh] p-0">
             <ScrollArea className="h-full">
               <div className="p-4">
-                <h2 className="text-lg font-semibold mb-4">More Options</h2>
-                <Sidebar 
-                  onViewChange={onViewChange}
-                  onContactSelect={onContactSelect}
-                  onDealSelect={onDealSelect}
-                  onCompanySelect={onCompanySelect}
-                />
+                <h2 className="text-lg font-semibold mb-4 px-2">Navigation</h2>
+                <SidebarProvider>
+                  <AppSidebar />
+                </SidebarProvider>
               </div>
             </ScrollArea>
           </SheetContent>

@@ -2,7 +2,8 @@ import { ReactNode } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import MobileNavBar from "./MobileNavBar";
-import Sidebar from "@/components/Sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface ResponsiveLayoutProps {
   children: ReactNode;
@@ -21,36 +22,37 @@ const ResponsiveLayout = ({
 }: ResponsiveLayoutProps) => {
   const isMobile = useIsMobile();
 
-  return (
-    <div className="flex h-screen w-full overflow-hidden">
-      {/* Desktop Sidebar */}
-      {!isMobile && (
-        <Sidebar
-          onViewChange={onViewChange}
-          onContactSelect={onContactSelect}
-          onDealSelect={onDealSelect}
-          onCompanySelect={onCompanySelect}
-        />
-      )}
+  if (isMobile) {
+    return (
+      <div className="flex h-screen w-full overflow-hidden flex-col">
+        {/* Main Content */}
+        <main className="flex-1 overflow-hidden pb-16">
+          {children}
+        </main>
 
-      {/* Main Content */}
-      <main className={cn(
-        "flex-1 overflow-hidden",
-        isMobile && "pb-16" // Add bottom padding for mobile nav
-      )}>
-        {children}
-      </main>
-
-      {/* Mobile Bottom Navigation */}
-      {isMobile && (
+        {/* Mobile Bottom Navigation */}
         <MobileNavBar 
           onViewChange={onViewChange}
           onContactSelect={onContactSelect}
           onDealSelect={onDealSelect}
           onCompanySelect={onCompanySelect}
         />
-      )}
-    </div>
+      </div>
+    );
+  }
+
+  return (
+    <SidebarProvider>
+      <div className="flex h-screen w-full overflow-hidden">
+        {/* Desktop Sidebar */}
+        <AppSidebar />
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-hidden">
+          {children}
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 
