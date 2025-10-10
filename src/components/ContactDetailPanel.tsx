@@ -5,7 +5,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { ContactForm } from "./forms/ContactForm";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ActivityForm } from "./forms/ActivityForm";
 import { InlineEditField } from "./detail-panels/InlineEditField";
 import { ActivityHistory } from "./detail-panels/ActivityHistory";
@@ -65,6 +67,12 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showActivityDialog, setShowActivityDialog] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+
+  const DialogWrapper = isMobile ? Drawer : Dialog;
+  const DialogContentWrapper = isMobile ? DrawerContent : DialogContent;
+  const DialogHeaderWrapper = isMobile ? DrawerHeader : DialogHeader;
+  const DialogTitleWrapper = isMobile ? DrawerTitle : DialogTitle;
 
   useEffect(() => {
     fetchContactDetails();
@@ -316,11 +324,11 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
         </ScrollArea>
       </Tabs>
 
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Edit Contact</DialogTitle>
-          </DialogHeader>
+      <DialogWrapper open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContentWrapper className={isMobile ? "" : "max-w-2xl"}>
+          <DialogHeaderWrapper>
+            <DialogTitleWrapper>Edit Contact</DialogTitleWrapper>
+          </DialogHeaderWrapper>
           <ContactForm
             contactId={contactId}
             onSuccess={() => {
@@ -329,14 +337,14 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
             }}
             onCancel={() => setShowEditDialog(false)}
           />
-        </DialogContent>
-      </Dialog>
+        </DialogContentWrapper>
+      </DialogWrapper>
 
-      <Dialog open={showActivityDialog} onOpenChange={setShowActivityDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Log Activity</DialogTitle>
-          </DialogHeader>
+      <DialogWrapper open={showActivityDialog} onOpenChange={setShowActivityDialog}>
+        <DialogContentWrapper>
+          <DialogHeaderWrapper>
+            <DialogTitleWrapper>Log Activity</DialogTitleWrapper>
+          </DialogHeaderWrapper>
           <ActivityForm
             contactId={contactId}
             onSuccess={() => {
@@ -345,8 +353,8 @@ const ContactDetailPanel = ({ contactId, onClose }: ContactDetailPanelProps) => 
             }}
             onCancel={() => setShowActivityDialog(false)}
           />
-        </DialogContent>
-      </Dialog>
+        </DialogContentWrapper>
+      </DialogWrapper>
     </aside>
   );
 };

@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Label } from "@/components/ui/label";
 import { InlineEditField } from "./detail-panels/InlineEditField";
 import { ActivityHistory } from "./detail-panels/ActivityHistory";
@@ -59,6 +61,12 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
     address: "",
   });
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+
+  const DialogWrapper = isMobile ? Drawer : Dialog;
+  const DialogContentWrapper = isMobile ? DrawerContent : DialogContent;
+  const DialogHeaderWrapper = isMobile ? DrawerHeader : DialogHeader;
+  const DialogTitleWrapper = isMobile ? DrawerTitle : DialogTitle;
 
   useEffect(() => {
     fetchCompanyDetails();
@@ -296,11 +304,11 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
         </ScrollArea>
       </Tabs>
 
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Edit Company</DialogTitle>
-          </DialogHeader>
+      <DialogWrapper open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContentWrapper className={isMobile ? "" : "max-w-2xl"}>
+          <DialogHeaderWrapper>
+            <DialogTitleWrapper>Edit Company</DialogTitleWrapper>
+          </DialogHeaderWrapper>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Company Name *</Label>
@@ -351,8 +359,8 @@ const CompanyDetailPanel = ({ companyId, onClose }: CompanyDetailPanelProps) => 
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </DialogContentWrapper>
+      </DialogWrapper>
     </aside>
   );
 };
