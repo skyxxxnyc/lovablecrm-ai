@@ -36,33 +36,35 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/workflows" element={<Workflows />} />
-          <Route path="/integrations" element={<Integrations />} />
-          <Route path="/sequences" element={<EmailSequences />} />
-          <Route path="/scheduling" element={<Scheduling />} />
-          <Route path="/prompts" element={<PromptLibrary />} />
-          <Route path="/automation" element={<AutomationRules />} />
-          <Route path="/pipeline" element={<Pipeline />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/email-hub" element={<EmailHub />} />
-          <Route path="/custom-fields" element={<CustomFields />} />
-          <Route path="/companies" element={<Companies />} />
-          <Route path="/companies/:id" element={<CompanyDetail />} />
-          <Route path="/deals" element={<Deals />} />
-          <Route path="/deals/:id" element={<DealDetail />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/billing" element={<Billing />} />
-          <Route path="/blog-admin" element={<BlogAdmin />} />
-          <Route path="/feedback" element={<Feedback />} />
-          <Route path="/book/:slug" element={<BookMeeting />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <main id="main-content" role="main">
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/workflows" element={<Workflows />} />
+            <Route path="/integrations" element={<Integrations />} />
+            <Route path="/sequences" element={<EmailSequences />} />
+            <Route path="/scheduling" element={<Scheduling />} />
+            <Route path="/prompts" element={<PromptLibrary />} />
+            <Route path="/automation" element={<AutomationRules />} />
+            <Route path="/pipeline" element={<Pipeline />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/email-hub" element={<EmailHub />} />
+            <Route path="/custom-fields" element={<CustomFields />} />
+            <Route path="/companies" element={<Companies />} />
+            <Route path="/companies/:id" element={<CompanyDetail />} />
+            <Route path="/deals" element={<Deals />} />
+            <Route path="/deals/:id" element={<DealDetail />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/billing" element={<Billing />} />
+            <Route path="/blog-admin" element={<BlogAdmin />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/book/:slug" element={<BookMeeting />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
         <FloatingChatButton />
       </BrowserRouter>
     </TooltipProvider>

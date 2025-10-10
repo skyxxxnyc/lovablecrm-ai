@@ -138,7 +138,7 @@ export function AppSidebar() {
       <Sidebar collapsible="icon">
         <SidebarHeader>
           <div className="flex items-center justify-center p-4">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center" aria-hidden="true">
               <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
             {!isCollapsed && (
@@ -154,13 +154,13 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton onClick={() => setShowNewDialog(true)}>
+                  <SidebarMenuButton onClick={() => setShowNewDialog(true)} aria-label="Create new item">
                     <Plus className="h-4 w-4" />
                     <span>New</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton onClick={() => {}}>
+                  <SidebarMenuButton onClick={() => {}} aria-label="Search">
                     <Search className="h-4 w-4" />
                     <span>Search</span>
                   </SidebarMenuButton>
@@ -177,8 +177,8 @@ export function AppSidebar() {
                 {crmItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink to={item.url}>
-                        <item.icon className="h-4 w-4" />
+                      <NavLink to={item.url} aria-label={`Navigate to ${item.title}`}>
+                        <item.icon className="h-4 w-4" aria-hidden="true" />
                         <span>{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
@@ -306,14 +306,17 @@ export function AppSidebar() {
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              <SidebarMenuButton 
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
                 <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleSignOut}>
-                <LogOut className="h-4 w-4" />
+              <SidebarMenuButton onClick={handleSignOut} aria-label="Sign out of your account">
+                <LogOut className="h-4 w-4" aria-hidden="true" />
                 <span>Sign Out</span>
               </SidebarMenuButton>
             </SidebarMenuItem>

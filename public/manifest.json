@@ -1,0 +1,42 @@
+{
+  "name": "LovableCRM AI",
+  "short_name": "LovableCRM",
+  "description": "AI-powered CRM for modern businesses",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your dashboard",
+      "url": "/dashboard",
+      "icons": []
+    },
+    {
+      "name": "Companies",
+      "short_name": "Companies",
+      "description": "Manage companies",
+      "url": "/companies",
+      "icons": []
+    },
+    {
+      "name": "Deals",
+      "short_name": "Deals",
+      "description": "Manage deals",
+      "url": "/deals",
+      "icons": []
+    }
+  ]
+}
