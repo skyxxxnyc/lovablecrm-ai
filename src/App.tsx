@@ -26,6 +26,7 @@ import Billing from "./pages/Billing";
 import BlogAdmin from "./pages/BlogAdmin";
 import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
+import ConversionLanding from "./pages/ConversionLanding";
 import { FloatingChatButton } from "./components/FloatingChatButton";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/blog-admin" element={<BlogAdmin />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/book/:slug" element={<BookMeeting />} />
+            <Route path="/landing" element={<ConversionLanding />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
