@@ -3,8 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Briefcase, DollarSign, Calendar } from "lucide-react";
+import { Plus, Search, Briefcase, DollarSign, Calendar, LayoutGrid, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PipelineBoard } from "@/components/pipeline/PipelineBoard";
 import {
   Table,
   TableBody,
@@ -186,130 +188,149 @@ export default function Deals() {
             </div>
 
             {/* Content */}
-            {isMobile ? (
-              <PullToRefresh onRefresh={handleRefresh} disabled={loading}>
-                <div className="px-4 pb-20 space-y-3">
-                  {loading ? (
-                    <div className="py-12 text-center text-muted-foreground">
-                      Loading deals...
-                    </div>
-                  ) : filteredDeals.length === 0 ? (
-                    <div className="py-12 text-center">
-                      <Briefcase className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">
-                        {searchQuery ? "No deals found" : "No deals yet"}
-                      </p>
-                    </div>
-                  ) : (
-                    filteredDeals.map((deal) => (
-                      <SwipeableListItem
-                        key={deal.id}
-                        onEdit={() => navigate(`/deals/${deal.id}`)}
-                      >
-                        <DealCard
-                          deal={deal}
-                          contact={deal.contact_id ? contacts[deal.contact_id] : null}
-                          company={deal.company_id ? companies[deal.company_id] : null}
-                          onClick={() => navigate(`/deals/${deal.id}`)}
-                        />
-                      </SwipeableListItem>
-                    ))
-                  )}
-                </div>
-              </PullToRefresh>
-            ) : (
-              <Card>
-                <CardContent className="p-0">
-                  {loading ? (
-                    <div className="p-8 text-center text-muted-foreground">
-                      Loading deals...
-                    </div>
-                  ) : filteredDeals.length === 0 ? (
-                    <div className="p-8 text-center">
-                      <Briefcase className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">
-                        {searchQuery ? "No deals found matching your search" : "No deals yet"}
-                      </p>
-                    </div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Deal Title</TableHead>
-                          <TableHead>Contact</TableHead>
-                          <TableHead>Company</TableHead>
-                          <TableHead>Amount</TableHead>
-                          <TableHead>Stage</TableHead>
-                          <TableHead>Probability</TableHead>
-                          <TableHead>Close Date</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredDeals.map((deal) => (
-                          <TableRow
+            <Tabs defaultValue="list" className="w-full">
+              <TabsList className={isMobile ? "w-full grid grid-cols-2 mb-4 mx-4" : "mb-4"}>
+                <TabsTrigger value="list" className="flex items-center gap-2">
+                  <List className="h-4 w-4" />
+                  List View
+                </TabsTrigger>
+                <TabsTrigger value="board" className="flex items-center gap-2">
+                  <LayoutGrid className="h-4 w-4" />
+                  Pipeline Board
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="list">
+                {isMobile ? (
+                  <PullToRefresh onRefresh={handleRefresh} disabled={loading}>
+                    <div className="px-4 pb-20 space-y-3">
+                      {loading ? (
+                        <div className="py-12 text-center text-muted-foreground">
+                          Loading deals...
+                        </div>
+                      ) : filteredDeals.length === 0 ? (
+                        <div className="py-12 text-center">
+                          <Briefcase className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                          <p className="text-muted-foreground">
+                            {searchQuery ? "No deals found" : "No deals yet"}
+                          </p>
+                        </div>
+                      ) : (
+                        filteredDeals.map((deal) => (
+                          <SwipeableListItem
                             key={deal.id}
-                            className="cursor-pointer hover:bg-muted/50"
-                            onClick={() => navigate(`/deals/${deal.id}`)}
+                            onEdit={() => navigate(`/deals/${deal.id}`)}
                           >
-                            <TableCell className="font-medium">
-                              <div className="flex items-center gap-2">
-                                <Briefcase className="h-4 w-4 text-primary" />
-                                {deal.title}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {deal.contact_id && contacts[deal.contact_id] ? (
-                                `${contacts[deal.contact_id].first_name} ${contacts[deal.contact_id].last_name}`
-                              ) : (
-                                <span className="text-muted-foreground">—</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {deal.company_id && companies[deal.company_id] ? (
-                                companies[deal.company_id].name
-                              ) : (
-                                <span className="text-muted-foreground">—</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-1">
-                                <DollarSign className="h-3 w-3" />
-                                {formatCurrency(deal.amount)}
-                              </div>
-                            </TableCell>
-                            <TableCell>{getStageBadge(deal.stage)}</TableCell>
-                            <TableCell>{deal.probability}%</TableCell>
-                            <TableCell>
-                              {deal.expected_close_date ? (
-                                <div className="flex items-center gap-1 text-sm">
-                                  <Calendar className="h-3 w-3" />
-                                  {format(new Date(deal.expected_close_date), "MMM d, yyyy")}
-                                </div>
-                              ) : (
-                                <span className="text-muted-foreground">—</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/deals/${deal.id}`);
-                                }}
+                            <DealCard
+                              deal={deal}
+                              contact={deal.contact_id ? contacts[deal.contact_id] : null}
+                              company={deal.company_id ? companies[deal.company_id] : null}
+                              onClick={() => navigate(`/deals/${deal.id}`)}
+                            />
+                          </SwipeableListItem>
+                        ))
+                      )}
+                    </div>
+                  </PullToRefresh>
+                ) : (
+                  <Card>
+                    <CardContent className="p-0">
+                      {loading ? (
+                        <div className="p-8 text-center text-muted-foreground">
+                          Loading deals...
+                        </div>
+                      ) : filteredDeals.length === 0 ? (
+                        <div className="p-8 text-center">
+                          <Briefcase className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                          <p className="text-muted-foreground">
+                            {searchQuery ? "No deals found matching your search" : "No deals yet"}
+                          </p>
+                        </div>
+                      ) : (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Deal Title</TableHead>
+                              <TableHead>Contact</TableHead>
+                              <TableHead>Company</TableHead>
+                              <TableHead>Amount</TableHead>
+                              <TableHead>Stage</TableHead>
+                              <TableHead>Probability</TableHead>
+                              <TableHead>Close Date</TableHead>
+                              <TableHead>Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {filteredDeals.map((deal) => (
+                              <TableRow
+                                key={deal.id}
+                                className="cursor-pointer hover:bg-muted/50"
+                                onClick={() => navigate(`/deals/${deal.id}`)}
                               >
-                                View Details
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                                <TableCell className="font-medium">
+                                  <div className="flex items-center gap-2">
+                                    <Briefcase className="h-4 w-4 text-primary" />
+                                    {deal.title}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  {deal.contact_id && contacts[deal.contact_id] ? (
+                                    `${contacts[deal.contact_id].first_name} ${contacts[deal.contact_id].last_name}`
+                                  ) : (
+                                    <span className="text-muted-foreground">—</span>
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  {deal.company_id && companies[deal.company_id] ? (
+                                    companies[deal.company_id].name
+                                  ) : (
+                                    <span className="text-muted-foreground">—</span>
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-1">
+                                    <DollarSign className="h-3 w-3" />
+                                    {formatCurrency(deal.amount)}
+                                  </div>
+                                </TableCell>
+                                <TableCell>{getStageBadge(deal.stage)}</TableCell>
+                                <TableCell>{deal.probability}%</TableCell>
+                                <TableCell>
+                                  {deal.expected_close_date ? (
+                                    <div className="flex items-center gap-1 text-sm">
+                                      <Calendar className="h-3 w-3" />
+                                      {format(new Date(deal.expected_close_date), "MMM d, yyyy")}
+                                    </div>
+                                  ) : (
+                                    <span className="text-muted-foreground">—</span>
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate(`/deals/${deal.id}`);
+                                    }}
+                                  >
+                                    View Details
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="board">
+                <PipelineBoard />
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </ResponsiveLayout>

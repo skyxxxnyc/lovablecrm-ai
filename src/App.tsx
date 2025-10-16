@@ -12,13 +12,13 @@ import Scheduling from "./pages/Scheduling";
 import BookMeeting from "./pages/BookMeeting";
 import PromptLibrary from "./pages/PromptLibrary";
 import AutomationRules from "./pages/AutomationRules";
-import Pipeline from "./pages/Pipeline";
 import Reports from "./pages/Reports";
 import Analytics from "./pages/Analytics";
 import EmailHub from "./pages/EmailHub";
 import CustomFields from "./pages/CustomFields";
 import Companies from "./pages/Companies";
 import CompanyDetail from "./pages/CompanyDetail";
+import Contacts from "./pages/Contacts";
 import Deals from "./pages/Deals";
 import DealDetail from "./pages/DealDetail";
 import Settings from "./pages/Settings";
@@ -48,13 +48,13 @@ const App = () => (
             <Route path="/scheduling" element={<Scheduling />} />
             <Route path="/prompts" element={<PromptLibrary />} />
             <Route path="/automation" element={<AutomationRules />} />
-            <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/email-hub" element={<EmailHub />} />
             <Route path="/custom-fields" element={<CustomFields />} />
             <Route path="/companies" element={<Companies />} />
             <Route path="/companies/:id" element={<CompanyDetail />} />
+            <Route path="/contacts" element={<Contacts />} />
             <Route path="/deals" element={<Deals />} />
             <Route path="/deals/:id" element={<DealDetail />} />
             <Route path="/settings" element={<Settings />} />
