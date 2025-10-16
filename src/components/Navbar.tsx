@@ -41,9 +41,9 @@ export const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
-              <span className="text-primary-foreground font-bold text-lg">L</span>
+              <span className="text-primary-foreground font-bold text-lg">S</span>
             </div>
-            <span className="font-bold text-xl hidden sm:inline-block">LovableCRM</span>
+            <span className="font-bold text-xl hidden sm:inline-block">siaCRM</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -94,9 +94,9 @@ export const Navbar = () => {
                 <div className="flex flex-col space-y-4 mt-8">
                   <div className="flex items-center space-x-2 px-2 mb-4">
                     <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                      <span className="text-primary-foreground font-bold text-xl">L</span>
+                      <span className="text-primary-foreground font-bold text-xl">S</span>
                     </div>
-                    <span className="font-bold text-xl">LovableCRM</span>
+                    <span className="font-bold text-xl">siaCRM</span>
                   </div>
 
                   <nav className="flex flex-col space-y-2" role="navigation">

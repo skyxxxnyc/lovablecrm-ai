@@ -1,7 +1,7 @@
 {
-  "name": "LovableCRM AI",
-  "short_name": "LovableCRM",
-  "description": "AI-powered CRM for modern businesses",
+  "name": "siaCRM - Your AI-Powered CRM Assistant",
+  "short_name": "siaCRM",
+  "description": "Meet Sia, your AI-powered CRM assistant. Built for freelancers, consultants, and lean teams.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a2e",

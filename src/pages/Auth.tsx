@@ -85,21 +85,21 @@ const Auth = () => {
             <div className="w-10 h-10 bg-primary-foreground/20 rounded-xl flex items-center justify-center">
               <Sparkles className="w-6 h-6" />
             </div>
-            <h1 className="text-2xl font-bold">CRM AI</h1>
+            <h1 className="text-2xl font-bold">siaCRM</h1>
           </div>
           
           <div className="max-w-md">
             <h2 className="text-4xl font-bold mb-6 leading-tight">
-              Stop Wrestling With Your CRM. Just Talk To It.
+              Meet Sia, Your AI-Powered CRM Assistant
             </h2>
             <p className="text-lg text-primary-foreground/80">
-              The AI-first CRM that handles your busywork while you close deals. Built for solopreneurs who need enterprise power.
+              Built for freelancers, consultants, and lean teams. Sia helps you stay effortlessly connected with your clients—from smart follow-ups to real-time conversation tracking. Your second brain for customer relationships.
             </p>
           </div>
         </div>
         
         <div className="text-sm text-primary-foreground/60">
-          <p>Copyright © 2025 CRM AI. All rights reserved.</p>
+          <p>Copyright © 2025 siaCRM. All rights reserved.</p>
         </div>
       </div>
 
@@ -112,7 +112,7 @@ const Auth = () => {
               <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-primary-foreground" />
               </div>
-              <h1 className="text-2xl font-bold">CRM AI</h1>
+              <h1 className="text-2xl font-bold">siaCRM</h1>
             </div>
           </div>
 

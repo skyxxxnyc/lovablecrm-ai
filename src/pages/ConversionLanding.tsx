@@ -18,11 +18,11 @@ const ConversionLanding = () => {
       <section className="container mx-auto px-4 pt-12 pb-16 md:pt-20 md:pb-24">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Stop Wrestling With Your CRM. Just Talk To It.
+            Meet Sia, Your AI-Powered CRM Assistant
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            The AI-first CRM that handles your busywork while you close deals. Built for solopreneurs who need enterprise power without the enterprise nightmare—free to start, $24.99/month to unlock AI superpowers.
+            Built for freelancers, consultants, and lean teams, Sia helps you stay effortlessly connected with your clients. From smart follow-ups to real-time conversation tracking, Sia handles the busywork so you can focus on deep work. It's not just a tool — it's your second brain for customer relationships.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -95,20 +95,20 @@ const ConversionLanding = () => {
       <section className="container mx-auto px-4 py-24">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
-            Meet The CRM That Works Like Your Brain Actually Works
+            Meet Sia: The CRM That Works Like Your Brain Actually Works
           </h2>
           
           <div className="space-y-6 mb-12 text-lg text-muted-foreground">
             <p>
-              ChatbotCRM is the first CRM designed around conversation, not forms. Instead of navigating menus and clicking through tabs, you just tell it what happened: "Had a great call with Sarah, she's interested in the Q4 package, following up Tuesday."
+              Sia is the first CRM designed around conversation, not forms. Instead of navigating menus and clicking through tabs, you just tell Sia what happened: "Had a great call with Sarah, she's interested in the Q4 package, following up Tuesday."
             </p>
             
             <p>
-              Done. It logs the activity, updates the deal stage, sets the reminder, and flags Sarah as a hot lead. All from one sentence.
+              Done. Sia logs the activity, updates the deal stage, sets the reminder, and flags Sarah as a hot lead. All from one sentence.
             </p>
             
             <p>
-              We took the AI and relationship intelligence that enterprise teams pay $2,000+/year for and rebuilt it for how solopreneurs actually work—mobile-first, conversation-first, simple-first.
+              We took the AI and relationship intelligence that enterprise teams pay $2,000+/year for and rebuilt it for how freelancers and lean teams actually work—mobile-first, conversation-first, simple-first.
             </p>
           </div>
           
@@ -167,7 +167,7 @@ const ConversionLanding = () => {
           
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             <Card className="p-8">
-              <h3 className="text-xl font-bold mb-4 text-destructive">Without ChatbotCRM</h3>
+              <h3 className="text-xl font-bold mb-4 text-destructive">Without siaCRM</h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <span className="text-2xl">⏱️</span>
@@ -198,7 +198,7 @@ const ConversionLanding = () => {
             </Card>
             
             <Card className="p-8 bg-primary/5 border-primary/20">
-              <h3 className="text-xl font-bold mb-4 text-primary">With ChatbotCRM Pro</h3>
+              <h3 className="text-xl font-bold mb-4 text-primary">With siaCRM Pro</h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <span className="text-2xl">💬</span>
@@ -242,7 +242,7 @@ const ConversionLanding = () => {
                 </div>
                 <div>
                   <div className="text-3xl font-bold">$24.99</div>
-                  <div className="text-sm text-muted-foreground">ChatbotCRM Pro cost</div>
+                  <div className="text-sm text-muted-foreground">siaCRM Pro cost</div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold text-primary">60X</div>
@@ -266,7 +266,7 @@ const ConversionLanding = () => {
               <h3 className="text-xl font-bold mb-4">Why is this so cheap compared to other CRMs?</h3>
               <div className="space-y-3 text-muted-foreground">
                 <p>
-                  It's not cheap—it's fair. We're not padding prices to afford enterprise sales teams and VC yacht parties. We built efficient AI architecture and we're targeting solopreneurs who've been priced out of tools that actually work.
+                  It's not cheap—it's fair. We're not padding prices to afford enterprise sales teams and VC yacht parties. We built efficient AI architecture and we're targeting freelancers and consultants who've been priced out of tools that actually work.
                 </p>
                 <p>
                   After 100 early adopters, Pro goes to $49.99/month (still less than HubSpot). Right now? $24.99/month locks in forever if you're one of the first 100.
@@ -338,7 +338,7 @@ const ConversionLanding = () => {
                       <th className="py-3 px-4 font-semibold">Feature</th>
                       <th className="py-3 px-4 font-semibold">HubSpot</th>
                       <th className="py-3 px-4 font-semibold">Salesforce</th>
-                      <th className="py-3 px-4 font-semibold text-primary">ChatbotCRM</th>
+                      <th className="py-3 px-4 font-semibold text-primary">siaCRM</th>
                     </tr>
                   </thead>
                   <tbody className="text-muted-foreground">
@@ -370,7 +370,7 @@ const ConversionLanding = () => {
                       <td className="py-3 px-4 font-medium">Built For</td>
                       <td className="py-3 px-4">Teams</td>
                       <td className="py-3 px-4">Enterprise</td>
-                      <td className="py-3 px-4 text-primary font-semibold">Solopreneurs</td>
+                      <td className="py-3 px-4 text-primary font-semibold">Freelancers & Consultants</td>
                     </tr>
                   </tbody>
                 </table>
@@ -431,7 +431,7 @@ const ConversionLanding = () => {
           </h2>
           
           <p className="text-lg text-muted-foreground mb-8">
-            The consultants and solopreneurs winning right now aren't working harder—they're letting AI handle the admin work while they focus on relationships and revenue.
+            The consultants and freelancers winning right now aren't working harder—they're letting AI handle the admin work while they focus on relationships and revenue.
           </p>
           
           <p className="text-lg mb-12">
@@ -492,7 +492,7 @@ const ConversionLanding = () => {
       {/* Footer */}
       <footer className="container mx-auto px-4 py-12 border-t border-border">
         <div className="text-center text-sm text-muted-foreground">
-          <p>© 2025 ChatbotCRM. All rights reserved.</p>
+          <p>© 2025 siaCRM. All rights reserved.</p>
           <p className="mt-2">Privacy Policy | Terms of Service | Contact</p>
         </div>
       </footer>
