@@ -22,7 +22,6 @@ import {
   Users,
   Building2,
   Briefcase,
-  CheckSquare,
   Calendar,
   TrendingUp,
   BarChart3,
@@ -30,9 +29,6 @@ import {
   Mail,
   Settings,
   CreditCard,
-  MessageSquare,
-  Edit3,
-  BookOpen,
   Database,
   LogOut,
   Moon,
@@ -42,42 +38,27 @@ import {
 import { Button } from "./ui/button";
 import { NewItemDialog } from "./NewItemDialog";
 
-const crmItems = [
-  { title: "Contacts", url: "/dashboard", icon: Users },
+// Core navigation structure - simplified from 7 to 3 groups
+const workItems = [
+  { title: "Dashboard", url: "/dashboard", icon: Sparkles },
+  { title: "Contacts", url: "/contacts", icon: Users },
   { title: "Companies", url: "/companies", icon: Building2 },
   { title: "Deals", url: "/deals", icon: Briefcase },
-];
-
-const tasksItems = [
-  { title: "Tasks", url: "/dashboard", icon: CheckSquare },
   { title: "Calendar", url: "/scheduling", icon: Calendar },
 ];
 
-const salesItems = [
-  { title: "Pipeline", url: "/pipeline", icon: TrendingUp },
+const insightsItems = [
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
-];
-
-const automationItems = [
-  { title: "Workflows", url: "/workflows", icon: Zap },
-  { title: "Automation Rules", url: "/automation", icon: Settings },
-];
-
-const communicationItems = [
-  { title: "AI Chat", url: "/dashboard", icon: Sparkles },
+  { title: "Reports", url: "/reports", icon: TrendingUp },
   { title: "Email Hub", url: "/email-hub", icon: Mail },
 ];
 
-const configItems = [
+const configureItems = [
+  { title: "Workflows", url: "/workflows", icon: Zap },
+  { title: "Automation", url: "/automation", icon: Settings },
+  { title: "Integrations", url: "/integrations", icon: Database },
   { title: "Settings", url: "/settings", icon: Settings },
-  { title: "Custom Fields", url: "/custom-fields", icon: Database },
-  { title: "Prompt Library", url: "/prompts", icon: BookOpen },
-  { title: "Blog Admin", url: "/blog-admin", icon: Edit3 },
-];
-
-const otherItems = [
   { title: "Billing", url: "/billing", icon: CreditCard },
-  { title: "Feedback", url: "/feedback", icon: MessageSquare },
 ];
 
 export function AppSidebar() {
@@ -142,7 +123,7 @@ export function AppSidebar() {
               <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
             {!isCollapsed && (
-              <span className="ml-3 font-bold text-lg">CRM</span>
+              <span className="ml-3 font-bold text-lg">siaCRM</span>
             )}
           </div>
         </SidebarHeader>
@@ -169,12 +150,12 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
 
-          {/* CRM */}
+          {/* Work - Core CRM functionality */}
           <SidebarGroup>
-            <SidebarGroupLabel>CRM</SidebarGroupLabel>
+            <SidebarGroupLabel>Work</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {crmItems.map((item) => (
+                {workItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive(item.url)}>
                       <NavLink to={item.url} aria-label={`Navigate to ${item.title}`}>
@@ -188,16 +169,16 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
 
-          {/* Tasks & Calendar */}
+          {/* Insights - Analytics & reporting */}
           <SidebarGroup>
-            <SidebarGroupLabel>Tasks & Calendar</SidebarGroupLabel>
+            <SidebarGroupLabel>Insights</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {tasksItems.map((item) => (
+                {insightsItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink to={item.url}>
-                        <item.icon className="h-4 w-4" />
+                      <NavLink to={item.url} aria-label={`Navigate to ${item.title}`}>
+                        <item.icon className="h-4 w-4" aria-hidden="true" />
                         <span>{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
@@ -207,92 +188,16 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
 
-          {/* Sales & Analytics */}
+          {/* Configure - Settings & automation */}
           <SidebarGroup>
-            <SidebarGroupLabel>Sales & Analytics</SidebarGroupLabel>
+            <SidebarGroupLabel>Configure</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {salesItems.map((item) => (
+                {configureItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink to={item.url}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          {/* Automation */}
-          <SidebarGroup>
-            <SidebarGroupLabel>Automation</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {automationItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink to={item.url}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          {/* Communication */}
-          <SidebarGroup>
-            <SidebarGroupLabel>Communication</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {communicationItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink to={item.url}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          {/* Configuration */}
-          <SidebarGroup>
-            <SidebarGroupLabel>Configuration</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {configItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink to={item.url}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          {/* Other */}
-          <SidebarGroup>
-            <SidebarGroupLabel>Other</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {otherItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink to={item.url}>
-                        <item.icon className="h-4 w-4" />
+                      <NavLink to={item.url} aria-label={`Navigate to ${item.title}`}>
+                        <item.icon className="h-4 w-4" aria-hidden="true" />
                         <span>{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>

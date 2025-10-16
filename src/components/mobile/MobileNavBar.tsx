@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Users, Briefcase, Calendar, MoreHorizontal } from "lucide-react";
+import { Home, Users, Briefcase, BarChart3, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,10 +15,10 @@ interface MobileNavBarProps {
 
 const MobileNavBar = ({ onViewChange, onContactSelect, onDealSelect, onCompanySelect }: MobileNavBarProps) => {
   const navItems = [
-    { path: "/dashboard", icon: Home, label: "Home" },
+    { path: "/dashboard", icon: Home, label: "Dashboard" },
     { path: "/contacts", icon: Users, label: "Contacts" },
     { path: "/deals", icon: Briefcase, label: "Deals" },
-    { path: "/scheduling", icon: Calendar, label: "Calendar" },
+    { path: "/analytics", icon: BarChart3, label: "Insights" },
   ];
 
   return (
