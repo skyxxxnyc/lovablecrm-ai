@@ -44,6 +44,25 @@ export const useStreamingChat = ({ user, onError, onOpenDetail }: UseStreamingCh
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        
+        // Handle rate limit errors
+        if (response.status === 429) {
+          if (onError) {
+            onError('Rate limit exceeded. Please try again in a moment.');
+          }
+          setMessages(prev => prev.slice(0, -1));
+          return;
+        }
+        
+        // Handle credit exhaustion
+        if (response.status === 402) {
+          if (onError) {
+            onError('AI credits exhausted. Please add credits in Settings → Billing to continue using AI features.');
+          }
+          setMessages(prev => prev.slice(0, -1));
+          return;
+        }
+        
         throw new Error(errorData.error || 'Failed to start stream');
       }
 

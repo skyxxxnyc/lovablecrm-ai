@@ -163,7 +163,96 @@ Be concise, helpful, and proactive in suggesting actions.`;
       throw new Error('AI gateway error');
     }
 
-    return new Response(response.body, {
+    // Process the stream to detect and execute tool calls
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
+    
+    if (!reader) {
+      throw new Error('No response body');
+    }
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        let toolCallBuffer = '';
+        let isProcessingToolCall = false;
+        
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+            
+            for (const line of lines) {
+              if (!line.trim() || line.startsWith(':')) continue;
+              if (!line.startsWith('data: ')) continue;
+              
+              const data = line.slice(6).trim();
+              if (data === '[DONE]') continue;
+              
+              try {
+                const parsed = JSON.parse(data);
+                const delta = parsed.choices?.[0]?.delta;
+                
+                // Detect tool calls
+                if (delta?.tool_calls) {
+                  isProcessingToolCall = true;
+                  const toolCall = delta.tool_calls[0];
+                  
+                  if (toolCall.function?.arguments) {
+                    toolCallBuffer += toolCall.function.arguments;
+                  }
+                  
+                  // Check if tool call is complete
+                  if (toolCall.function?.name && toolCallBuffer) {
+                    try {
+                      const args = JSON.parse(toolCallBuffer);
+                      const result = await executeToolCall(toolCall.function.name, args, userId, supabase);
+                      
+                      // Send confirmation message
+                      const confirmMsg = `data: ${JSON.stringify({
+                        choices: [{
+                          delta: { content: result.message }
+                        }]
+                      })}\n\n`;
+                      controller.enqueue(encoder.encode(confirmMsg));
+                      
+                      toolCallBuffer = '';
+                      isProcessingToolCall = false;
+                    } catch (e: any) {
+                      console.error('Tool execution error:', e);
+                      const errorMsg = `data: ${JSON.stringify({
+                        choices: [{
+                          delta: { content: `Error: ${e.message || 'Unknown error'}` }
+                        }]
+                      })}\n\n`;
+                      controller.enqueue(encoder.encode(errorMsg));
+                    }
+                  }
+                } else if (!isProcessingToolCall) {
+                  // Regular content, forward it
+                  controller.enqueue(value);
+                }
+              } catch (e) {
+                // Not valid JSON, might be partial - forward it
+                if (!isProcessingToolCall) {
+                  controller.enqueue(value);
+                }
+              }
+            }
+          }
+          
+          controller.close();
+        } catch (error) {
+          console.error('Stream processing error:', error);
+          controller.error(error);
+        }
+      }
+    });
+
+    return new Response(stream, {
       headers: {
         ...corsHeaders,
         'Content-Type': 'text/event-stream',
@@ -183,6 +272,83 @@ Be concise, helpful, and proactive in suggesting actions.`;
     );
   }
 });
+
+async function executeToolCall(toolName: string, args: any, userId: string, supabase: any) {
+  console.log('Executing tool:', toolName, 'with args:', args);
+  
+  try {
+    if (toolName === 'create_contact') {
+      const { data, error } = await supabase
+        .from('contacts')
+        .insert({
+          user_id: userId,
+          first_name: args.first_name,
+          last_name: args.last_name,
+          email: args.email || null,
+          phone: args.phone || null,
+          position: args.position || null,
+          notes: args.notes || null
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      return {
+        success: true,
+        message: `✓ Created contact: ${args.first_name} ${args.last_name}${args.email ? ` (${args.email})` : ''}`
+      };
+    }
+    
+    if (toolName === 'create_deal') {
+      const { data, error } = await supabase
+        .from('deals')
+        .insert({
+          user_id: userId,
+          title: args.title,
+          amount: args.amount || 0,
+          stage: args.stage || 'lead',
+          notes: args.notes || null
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      return {
+        success: true,
+        message: `✓ Created deal: ${args.title}${args.amount ? ` ($${args.amount.toLocaleString()})` : ''}`
+      };
+    }
+    
+    if (toolName === 'create_task') {
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert({
+          user_id: userId,
+          title: args.title,
+          description: args.description || null,
+          priority: args.priority || 'medium',
+          due_date: args.due_date || null,
+          status: 'pending'
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      return {
+        success: true,
+        message: `✓ Created task: ${args.title}${args.due_date ? ` (due ${new Date(args.due_date).toLocaleDateString()})` : ''}`
+      };
+    }
+    
+    throw new Error(`Unknown tool: ${toolName}`);
+  } catch (error) {
+    console.error('Error executing tool:', error);
+    throw error;
+  }
+}
 
 async function detectIntentAndExecute(message: string, userId: string, supabase: any) {
   const lowerMsg = message.toLowerCase();
