@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, ArrowRight, Clock, MessageSquare, Brain, Zap, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
+import { AIDemoChat } from "@/components/landing/AIDemoChat";
 
 const ConversionLanding = () => {
   const [spotsRemaining, setSpotsRemaining] = useState(73);
@@ -155,6 +156,22 @@ const ConversionLanding = () => {
               </p>
             </div>
           </Card>
+        </div>
+      </section>
+
+      {/* AI Demo Section */}
+      <section className="container mx-auto px-4 py-24 bg-background">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Experience Sia in Action
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Chat with our AI assistant right now — no signup required
+            </p>
+          </div>
+          
+          <AIDemoChat />
         </div>
       </section>
 
