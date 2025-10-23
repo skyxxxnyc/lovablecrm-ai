@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { DealForm } from "./forms/DealForm";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import { ActivityForm } from "./forms/ActivityForm";
 import { InlineEditField } from "./detail-panels/InlineEditField";
 import { ActivityHistory } from "./detail-panels/ActivityHistory";
@@ -192,7 +193,12 @@ const DealDetailPanel = ({ dealId, onClose }: DealDetailPanelProps) => {
   }
 
   return (
-    <aside className="fixed md:relative inset-0 md:inset-auto md:w-96 border-l border-border bg-card flex flex-col h-screen animate-slide-in-right z-40 md:z-auto">
+    <aside className={cn(
+      "flex flex-col h-screen bg-card z-40",
+      isMobile 
+        ? "fixed inset-0 w-full animate-slide-in-up" 
+        : "relative w-96 border-l border-border animate-slide-in-right"
+    )}>
       <div className="p-6 border-b border-border">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">

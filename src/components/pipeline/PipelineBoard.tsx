@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { DollarSign, Calendar } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface Deal {
   id: string;
@@ -33,6 +35,7 @@ export const PipelineBoard = () => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -124,13 +127,19 @@ export const PipelineBoard = () => {
 
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className={cn(
+        "grid gap-4",
+        isMobile 
+          ? "grid-cols-1" 
+          : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
+      )}>
         {STAGES.map((stage) => (
           <PipelineColumn
             key={stage.id}
             stage={stage}
             deals={getDealsByStage(stage.id)}
             formatCurrency={formatCurrency}
+            isMobile={isMobile}
           />
         ))}
       </div>
@@ -148,13 +157,17 @@ interface PipelineColumnProps {
   stage: { id: string; label: string; color: string };
   deals: Deal[];
   formatCurrency: (amount: number | null) => string;
+  isMobile?: boolean;
 }
 
-const PipelineColumn = ({ stage, deals, formatCurrency }: PipelineColumnProps) => {
+const PipelineColumn = ({ stage, deals, formatCurrency, isMobile }: PipelineColumnProps) => {
   const totalValue = deals.reduce((sum, deal) => sum + (deal.amount || 0), 0);
 
   return (
-    <Card className="flex flex-col h-[600px]">
+    <Card className={cn(
+      "flex flex-col",
+      isMobile ? "h-[400px]" : "h-[600px]"
+    )}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium">{stage.label}</CardTitle>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, X, UserPlus, Briefcase, Building2, Calendar, CheckCircle2 } from "lucide-react";
+import { Plus, X, UserPlus, Briefcase, Building2, Calendar, CheckCircle2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLocation } from "react-router-dom";
@@ -10,43 +10,55 @@ interface MobileFABProps {
   onNewCompany?: () => void;
   onNewEvent?: () => void;
   onNewTask?: () => void;
+  onNewEmail?: () => void;
 }
 
-const MobileFAB = ({ onNewContact, onNewDeal, onNewCompany, onNewEvent, onNewTask }: MobileFABProps) => {
+const MobileFAB = ({ onNewContact, onNewDeal, onNewCompany, onNewEvent, onNewTask, onNewEmail }: MobileFABProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const actions = [
-    {
+    onNewContact && {
       icon: UserPlus,
       label: "Contact",
       onClick: onNewContact,
       color: "bg-primary hover:bg-primary/90",
     },
-    {
+    onNewDeal && {
       icon: Briefcase,
       label: "Deal",
       onClick: onNewDeal,
       color: "bg-accent hover:bg-accent/90",
     },
-    {
+    onNewCompany && {
       icon: Building2,
       label: "Company",
       onClick: onNewCompany,
       color: "bg-secondary hover:bg-secondary/90",
     },
-    {
+    onNewEvent && {
       icon: Calendar,
       label: "Event",
       onClick: onNewEvent,
       color: "bg-muted hover:bg-muted/90",
     },
-    {
+    onNewTask && {
       icon: CheckCircle2,
       label: "Task",
       onClick: onNewTask,
       color: "bg-primary hover:bg-primary/90",
     },
-  ];
+    onNewEmail && {
+      icon: Mail,
+      label: "Email",
+      onClick: onNewEmail,
+      color: "bg-indigo-500 hover:bg-indigo-600",
+    },
+  ].filter(Boolean) as Array<{
+    icon: any;
+    label: string;
+    onClick: () => void;
+    color: string;
+  }>;
 
   const handleActionClick = (action: typeof actions[0]) => {
     if (action.onClick) {

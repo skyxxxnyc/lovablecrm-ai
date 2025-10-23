@@ -164,7 +164,7 @@ export const DealForm = ({ dealId, onSuccess, onCancel }: DealFormProps) => {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="stage">Stage</Label>
           <Select value={formData.stage} onValueChange={(value) => setFormData({ ...formData, stage: value })}>
@@ -194,7 +194,7 @@ export const DealForm = ({ dealId, onSuccess, onCancel }: DealFormProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="probability">Probability (%)</Label>
           <Input

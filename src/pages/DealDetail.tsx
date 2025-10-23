@@ -6,8 +6,10 @@ import { ArrowLeft, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DealDetailPanel from "@/components/DealDetailPanel";
 import { Badge } from "@/components/ui/badge";
-import { AppLayout } from "@/components/AppLayout";
+import ResponsiveLayout from "@/components/mobile/ResponsiveLayout";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface Deal {
   id: string;
@@ -30,6 +32,7 @@ export default function DealDetail() {
   const { toast } = useToast();
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (id) {
@@ -93,17 +96,19 @@ export default function DealDetail() {
 
   if (loading) {
     return (
-      <AppLayout>
-        <div className="p-6">
-          <Breadcrumbs items={[
-            { label: "Deals", href: "/deals" },
-            { label: "Loading..." }
-          ]} />
+      <ResponsiveLayout>
+        <div className={isMobile ? "p-4" : "p-6"}>
+          {!isMobile && (
+            <Breadcrumbs items={[
+              { label: "Deals", href: "/deals" },
+              { label: "Loading..." }
+            ]} />
+          )}
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading deal details...</p>
           </div>
         </div>
-      </AppLayout>
+      </ResponsiveLayout>
     );
   }
 
@@ -112,27 +117,48 @@ export default function DealDetail() {
   }
 
   return (
-    <AppLayout>
-      <div className="p-6">
-        <Breadcrumbs items={[
-          { label: "Deals", href: "/deals" },
-          { label: deal.title }
-        ]} />
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/deals")}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Deals
-          </Button>
-        </div>
+    <ResponsiveLayout>
+      <div className={isMobile ? "p-0" : "p-6"}>
+        {!isMobile && (
+          <Breadcrumbs items={[
+            { label: "Deals", href: "/deals" },
+            { label: deal.title }
+          ]} />
+        )}
+        
+        {isMobile && (
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur p-4 border-b">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/deals")}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          </div>
+        )}
+        
+        {!isMobile && (
+          <div className="flex items-center gap-4 mb-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/deals")}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Deals
+            </Button>
+          </div>
+        )}
 
-        <div className="flex items-center gap-3 mb-6">
-          <Briefcase className="h-8 w-8 text-primary" />
+        <div className={cn(
+          "flex items-center gap-3",
+          isMobile ? "p-4 pb-4" : "mb-6"
+        )}>
+          <Briefcase className={isMobile ? "h-6 w-6 text-primary" : "h-8 w-8 text-primary"} />
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold">{deal.title}</h1>
+            <h1 className={isMobile ? "text-2xl font-bold" : "text-3xl font-bold"}>{deal.title}</h1>
             {getStageBadge(deal.stage)}
           </div>
         </div>
@@ -142,6 +168,6 @@ export default function DealDetail() {
           onClose={handleClose}
         />
       </div>
-    </AppLayout>
+    </ResponsiveLayout>
   );
 }

@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Activity, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -102,17 +103,19 @@ const Dashboard = () => {
             <Tabs defaultValue="chat" className="flex-1 flex flex-col overflow-hidden">
               {/* Top Bar with Tabs and Notifications */}
               <div className="border-b border-border px-4 md:px-6 py-3 flex items-center justify-between">
-                <TabsList className={isMobile ? "scale-90" : ""}>
-                  <TabsTrigger value="chat" className={isMobile ? "text-xs px-2" : ""}>
+                <TabsList className={cn(
+                  isMobile ? "grid grid-cols-2 w-full max-w-xs" : "inline-flex"
+                )}>
+                  <TabsTrigger value="chat" className={isMobile ? "text-xs" : ""}>
                     {isMobile ? "Chat" : "AI Chat"}
                   </TabsTrigger>
-                  <TabsTrigger value="metrics" className={isMobile ? "text-xs px-2" : ""}>
+                  <TabsTrigger value="metrics" className={isMobile ? "text-xs" : ""}>
                     Metrics
                   </TabsTrigger>
-                  <TabsTrigger value="calendar" className={isMobile ? "text-xs px-2" : ""}>
+                  <TabsTrigger value="calendar" className={isMobile ? "text-xs" : ""}>
                     Calendar
                   </TabsTrigger>
-                  <TabsTrigger value="activity" className={isMobile ? "text-xs px-2" : ""}>
+                  <TabsTrigger value="activity" className={isMobile ? "text-xs" : ""}>
                     Activity
                   </TabsTrigger>
                 </TabsList>
@@ -129,6 +132,12 @@ const Dashboard = () => {
                     <NotificationBell />
                   </div>
                 )}
+                
+                {isMobile && (
+                  <div className="flex items-center">
+                    <NotificationBell />
+                  </div>
+                )}
               </div>
               
               <TabsContent value="chat" className="flex-1 overflow-auto m-0">
@@ -142,10 +151,10 @@ const Dashboard = () => {
               </TabsContent>
               
               <TabsContent value="metrics" className="flex-1 overflow-auto p-4 md:p-6 m-0">
-                <div className="space-y-6">
+                <div className="space-y-4 md:space-y-6">
                   <DashboardMetrics />
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                    <div className="md:col-span-2">
                       <DashboardCharts />
                     </div>
                     <div>
