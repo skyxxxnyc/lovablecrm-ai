@@ -99,7 +99,35 @@ export default function Tasks() {
       return;
     }
 
+    // Trigger workflows for task completion
+    if (newStatus === "completed") {
+      try {
+        const { data: workflows } = await supabase
+          .from('workflows')
+          .select('id')
+          .eq('trigger_type', 'task_completed')
+          .eq('is_active', true);
+
+        if (workflows && workflows.length > 0) {
+          for (const workflow of workflows) {
+            await supabase.functions.invoke('execute-workflow', {
+              body: {
+                workflowId: workflow.id,
+                triggerData: { task_id: taskId }
+              }
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Error triggering workflows:', err);
+      }
+    }
+
     fetchTasks();
+    toast({
+      title: "Success",
+      description: `Task marked as ${newStatus}`,
+    });
   };
 
   const handleDelete = async (taskId: string) => {

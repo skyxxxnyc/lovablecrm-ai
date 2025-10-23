@@ -25,21 +25,29 @@ export const EmailComposer = ({ onClose, contactId, dealId }: EmailComposerProps
   });
 
   const handleSend = async () => {
+    if (!formData.to || !formData.subject || !formData.body) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
 
-      const { error } = await supabase
-        .from('email_tracking')
-        .insert({
-          user_id: user.id,
-          contact_id: contactId,
-          deal_id: dealId,
+      // Call send-email edge function
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: {
+          to: formData.to,
           subject: formData.subject,
           body: formData.body,
-          status: 'sent',
-        });
+          contact_id: contactId,
+          deal_id: dealId,
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
 
       if (error) throw error;
 
@@ -47,7 +55,7 @@ export const EmailComposer = ({ onClose, contactId, dealId }: EmailComposerProps
       onClose();
     } catch (error) {
       console.error('Error sending email:', error);
-      toast.error('Failed to send email');
+      toast.error(error instanceof Error ? error.message : 'Failed to send email');
     } finally {
       setLoading(false);
     }

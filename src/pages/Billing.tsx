@@ -108,6 +108,15 @@ export default function Billing() {
   const handleSubscribe = async (planId: string, priceId?: string) => {
     if (planId === "free") return;
     
+    if (!priceId) {
+      toast({
+        title: "Error",
+        description: "Price ID not configured for this plan",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       setProcessingPlan(planId);
       
@@ -122,14 +131,26 @@ export default function Billing() {
         return;
       }
 
-      // Open the Stripe payment link
-      window.open('https://buy.stripe.com/3cIeVfgfjaAGaFpcZVds402', '_blank');
+      // Call create-checkout edge function
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
 
-      setProcessingPlan(null);
+      if (error) throw error;
+
+      if (data?.url) {
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to create checkout session",
         variant: "destructive",
       });
       setProcessingPlan(null);
