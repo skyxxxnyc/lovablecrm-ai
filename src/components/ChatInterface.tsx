@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useStreamingChat } from "@/hooks/useStreamingChat";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { useVoiceConversation } from "@/hooks/useVoiceConversation";
-import { SmartSuggestions } from "./chat/SmartSuggestions";
 import { ContactCard } from "./chat/ContactCard";
 import { TaskCard } from "./chat/TaskCard";
 import { DealCard } from "./chat/DealCard";
@@ -207,11 +206,6 @@ const ChatInterface = ({
       {/* Input */}
       <div className="border-t border-border bg-card p-3 md:p-6">
         <div className="max-w-5xl mx-auto">
-          {/* Smart Suggestions */}
-          {user && <div className="mb-4">
-              <SmartSuggestions userId={user.id} onSuggestionClick={text => handleSend(text)} recentMessages={messages} />
-            </div>}
-          
           <div className="relative bg-background rounded-2xl border border-border">
             <Textarea value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder={voiceConversation.isActive ? "Voice conversation active - use the phone button to talk" : "Ask whatever you want..."} className="min-h-[80px] border-0 resize-none pr-36 focus-visible:ring-0 rounded-2xl" rows={1} disabled={voiceConversation.isActive} />
             <div className="absolute bottom-3 left-4 flex items-center space-x-2">
