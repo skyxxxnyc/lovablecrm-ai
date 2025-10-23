@@ -885,7 +885,7 @@ export type Database = {
           message: string
           name: string
           status: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           category: string
@@ -895,7 +895,7 @@ export type Database = {
           message: string
           name: string
           status?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           category?: string
@@ -905,7 +905,7 @@ export type Database = {
           message?: string
           name?: string
           status?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1363,6 +1363,7 @@ export type Database = {
           notes: string | null
           scheduling_link_id: string
           start_time: string
+          user_id: string | null
         }
         Insert: {
           attendee_email: string
@@ -1373,6 +1374,7 @@ export type Database = {
           notes?: string | null
           scheduling_link_id: string
           start_time: string
+          user_id?: string | null
         }
         Update: {
           attendee_email?: string
@@ -1383,6 +1385,7 @@ export type Database = {
           notes?: string | null
           scheduling_link_id?: string
           start_time?: string
+          user_id?: string | null
         }
         Relationships: [
           {
