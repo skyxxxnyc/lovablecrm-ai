@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, X, UserPlus, Briefcase, Building2, Calendar } from "lucide-react";
+import { Plus, X, UserPlus, Briefcase, Building2, Calendar, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLocation } from "react-router-dom";
@@ -9,9 +9,10 @@ interface MobileFABProps {
   onNewDeal?: () => void;
   onNewCompany?: () => void;
   onNewEvent?: () => void;
+  onNewTask?: () => void;
 }
 
-const MobileFAB = ({ onNewContact, onNewDeal, onNewCompany, onNewEvent }: MobileFABProps) => {
+const MobileFAB = ({ onNewContact, onNewDeal, onNewCompany, onNewEvent, onNewTask }: MobileFABProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const actions = [
@@ -38,6 +39,12 @@ const MobileFAB = ({ onNewContact, onNewDeal, onNewCompany, onNewEvent }: Mobile
       label: "Event",
       onClick: onNewEvent,
       color: "bg-muted hover:bg-muted/90",
+    },
+    {
+      icon: CheckCircle2,
+      label: "Task",
+      onClick: onNewTask,
+      color: "bg-primary hover:bg-primary/90",
     },
   ];
 

@@ -25,6 +25,7 @@ import DealCard from "@/components/mobile/DealCard";
 import SwipeableListItem from "@/components/mobile/SwipeableListItem";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { NewItemDialog } from "@/components/NewItemDialog";
 
 interface Deal {
   id: string;
@@ -58,6 +59,7 @@ export default function Deals() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showNewDialog, setShowNewDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -166,7 +168,7 @@ export default function Deals() {
                   )}
                 </div>
                 {!isMobile && (
-                  <Button onClick={() => navigate("/")}>
+                  <Button onClick={() => setShowNewDialog(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Deal
                   </Button>
@@ -337,9 +339,18 @@ export default function Deals() {
 
       {isMobile && (
         <MobileFAB
-          onNewDeal={() => navigate("/")}
+          onNewDeal={() => setShowNewDialog(true)}
         />
       )}
+
+      <NewItemDialog
+        open={showNewDialog}
+        onOpenChange={setShowNewDialog}
+        onSuccess={() => {
+          setShowNewDialog(false);
+          fetchDeals();
+        }}
+      />
     </>
   );
 }

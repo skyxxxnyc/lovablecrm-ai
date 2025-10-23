@@ -4,12 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContactForm } from "./forms/ContactForm";
 import { DealForm } from "./forms/DealForm";
 import { ActivityForm } from "./forms/ActivityForm";
+import { CompanyForm } from "./forms/CompanyForm";
 import { Users, Briefcase, Activity, Building2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface NewItemDialogProps {
   open: boolean;
@@ -18,47 +14,9 @@ interface NewItemDialogProps {
 }
 
 export const NewItemDialog = ({ open, onOpenChange, onSuccess }: NewItemDialogProps) => {
-  const [companyName, setCompanyName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
-
   const handleClose = () => {
     onOpenChange(false);
     if (onSuccess) onSuccess();
-  };
-
-  const handleCreateCompany = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { error } = await supabase
-      .from('companies')
-      .insert({
-        name: companyName,
-        user_id: user.id
-      });
-
-    setLoading(false);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create company",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Success",
-      description: "Company created successfully",
-    });
-
-    setCompanyName("");
-    handleClose();
   };
 
   return (
@@ -95,26 +53,10 @@ export const NewItemDialog = ({ open, onOpenChange, onSuccess }: NewItemDialogPr
           </TabsContent>
           
           <TabsContent value="company" className="mt-4">
-            <form onSubmit={handleCreateCompany} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="company_name">Company Name *</Label>
-                <Input
-                  id="company_name"
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  required
-                  placeholder="Acme Inc."
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  Create Company
-                </Button>
-              </div>
-            </form>
+            <CompanyForm
+              onSuccess={handleClose}
+              onCancel={() => onOpenChange(false)}
+            />
           </TabsContent>
           
           <TabsContent value="deal" className="mt-4">

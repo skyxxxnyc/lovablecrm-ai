@@ -20,6 +20,7 @@ import Companies from "./pages/Companies";
 import CompanyDetail from "./pages/CompanyDetail";
 import Contacts from "./pages/Contacts";
 import Deals from "./pages/Deals";
+import Tasks from "./pages/Tasks";
 import DealDetail from "./pages/DealDetail";
 import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="/companies" element={<Companies />} />
             <Route path="/companies/:id" element={<CompanyDetail />} />
             <Route path="/contacts" element={<Contacts />} />
+            <Route path="/tasks" element={<Tasks />} />
             <Route path="/deals" element={<Deals />} />
             <Route path="/deals/:id" element={<DealDetail />} />
             <Route path="/settings" element={<Settings />} />

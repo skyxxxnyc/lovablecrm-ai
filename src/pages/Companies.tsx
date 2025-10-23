@@ -22,6 +22,7 @@ import CompanyCard from "@/components/mobile/CompanyCard";
 import SwipeableListItem from "@/components/mobile/SwipeableListItem";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { NewItemDialog } from "@/components/NewItemDialog";
 
 interface Company {
   id: string;
@@ -40,6 +41,7 @@ export default function Companies() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showNewDialog, setShowNewDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -113,7 +115,7 @@ export default function Companies() {
                   )}
                 </div>
                 {!isMobile && (
-                  <Button onClick={() => navigate("/")}>
+                  <Button onClick={() => setShowNewDialog(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Company
                   </Button>
@@ -269,9 +271,18 @@ export default function Companies() {
 
       {isMobile && (
         <MobileFAB
-          onNewCompany={() => navigate("/")}
+          onNewCompany={() => setShowNewDialog(true)}
         />
       )}
+
+      <NewItemDialog
+        open={showNewDialog}
+        onOpenChange={setShowNewDialog}
+        onSuccess={() => {
+          setShowNewDialog(false);
+          fetchCompanies();
+        }}
+      />
     </>
   );
 }
