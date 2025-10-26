@@ -25,6 +25,7 @@ import DealDetail from "./pages/DealDetail";
 import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
 import BlogAdmin from "./pages/BlogAdmin";
+import Admin from "./pages/Admin";
 import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 import ConversionLanding from "./pages/ConversionLanding";
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/billing" element={<Billing />} />
             <Route path="/blog-admin" element={<BlogAdmin />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/book/:slug" element={<BookMeeting />} />
             <Route path="/landing" element={<ConversionLanding />} />
